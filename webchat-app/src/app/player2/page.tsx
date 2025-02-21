@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import GameBoard from "@/components/GameBoard";
+import PlayerBoard from  "@/components/PlayerBoard";
 
 const Player2Page = () => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
@@ -40,7 +40,7 @@ const Player2Page = () => {
         Player 2 {player2Active ? "✅ Active" : "❌ Inactive"}
       </div>
       {player2Active ? (
-        <GameBoard socket={socket} />
+        <PlayerBoard socket={socket} />
       ) : (
         <div className="flex justify-center items-center h-screen">
           <video autoPlay loop muted className="w-full h-full object-cover">

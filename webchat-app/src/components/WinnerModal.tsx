@@ -50,13 +50,13 @@ const WinnerModal = ({ show, onClose, winner }: { show: boolean; onClose: () => 
               {winner === 0 && (
                 <>
                 <img src="/assets/a_coin.png" alt="Andar Wins" className="w-full h-48 mr-4" />
-                <div> ANDAR WINS!!</div>
+                <div className="text-xl"> ANDAR WINS!!</div>
                 </>
               )}
               {winner === 1 && (
                 <>
-                <img src="/assets/b_coin.png" alt="Bahar Wins" className="w-40 h-40 mr-4" />
-                <div> BAHAR WINS!!</div>
+                <img src="/assets/b_coin.png" alt="Bahar Wins" className="w-full h-48  mr-4" />
+                <div className="text-xl"> BAHAR WINS!!</div>
                 </>
               )}
             </div>

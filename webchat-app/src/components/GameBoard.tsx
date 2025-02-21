@@ -56,18 +56,35 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
       setShowResetButton(false);
     }
   };
+  const noResetGame = () => {
+    
+      setShowResetButton(false);
+    
+  };
 
   return (
     <div className="flex flex-col items-center bg-[#8F1504] h-screen w-full border-8 border-yellow-600">
             <WinnerModal show={showWinnerModal} onClose={() => setShowWinnerModal(false)} winner={winner} />
             {showResetButton && (
-        <div className="flex items-center justify-center h-24 w-24 absolute bg-white">
+        <div className="flex z-50 items-center justify-center h-full w-full absolute">
+          <div className="bg-white p-4 rounded-lg shadow-lg text-2xl font-bold text-black">
+          <p>Are you sure you want to reset the game?</p>
+          <div className="flex mt-4 justify-evenly">
           <button
             onClick={resetGame}
+            className="bg-green-600 text-white px-6 py-3 rounded-lg text-xl font-bold"
+          >
+YES
+          </button>
+          <button
+            onClick={noResetGame}
             className="bg-red-600 text-white px-6 py-3 rounded-lg text-xl font-bold"
           >
-            Reset Game
+NO
           </button>
+          </div>
+          </div>
+          
         </div>
       )}
       <div className="bg-[#8F1504] grid grid-cols-3 grid-rows-2 gap-4 h-full w-full border-8 border-yellow-600 mt-4">
