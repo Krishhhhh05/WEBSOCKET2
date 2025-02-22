@@ -7,16 +7,16 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
   const [bahar, setBahar] = useState<string[]>([]);
   const [cardInput, setCardInput] = useState("");
   const [showWinnerModal, setShowWinnerModal] = useState(false);
-  const [winner, setWinner] = useState<number | null>(null);
+  const [winner, setWinner] = useState<string | null>(null);
   const [showResetButton, setShowResetButton] = useState(false);
-
+  const [sectionId, setSectionId] = useState(0);
   useEffect(() => {
     if (!socket) return;
-  
+
     const handleMessage = (event: MessageEvent) => {
       const data = JSON.parse(event.data);
       console.log("Received:", data);
-  
+
       if (data.action === "set_joker") {
         setJoker(data.joker);
       } else if (data.action === "update_game") {
@@ -33,6 +33,7 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
       }
       else if (data.action === "game_won") {
         setWinner(data.winner);
+        console.log("Winner:", data.winner);
         setShowWinnerModal(true);
 
         // Auto-hide the modal after 7 seconds
@@ -42,9 +43,9 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
         }, 7000);
       }
     };
-    
+
     socket.addEventListener("message", handleMessage);
-  
+
     return () => {
       socket.removeEventListener("message", handleMessage);
     };
@@ -52,44 +53,44 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
   const resetGame = () => {
     if (socket) {
       socket.send(JSON.stringify({ action: "reset_game" }));
-      
+
       setShowResetButton(false);
     }
   };
   const noResetGame = () => {
-    
-      setShowResetButton(false);
-    
+
+    setShowResetButton(false);
+
   };
 
   return (
-    <div className="flex flex-col items-center bg-[#8F1504] h-screen w-full border-8 border-yellow-600">
-            <WinnerModal show={showWinnerModal} onClose={() => setShowWinnerModal(false)} winner={winner} />
-            {showResetButton && (
+    <div className="flex flex-col items-center  h-screen w-full border-8 border-yellow-600">
+      <WinnerModal show={showWinnerModal} onClose={() => setShowWinnerModal(false)} winner={winner} />
+      {showResetButton && (
         <div className="flex z-50 items-center justify-center h-full w-full absolute">
           <div className="bg-white p-4 rounded-lg shadow-lg text-2xl font-bold text-black">
-          <p>Are you sure you want to reset the game?</p>
-          <div className="flex mt-4 justify-evenly">
-          <button
-            onClick={resetGame}
-            className="bg-green-600 text-white px-6 py-3 rounded-lg text-xl font-bold"
-          >
-YES
-          </button>
-          <button
-            onClick={noResetGame}
-            className="bg-red-600 text-white px-6 py-3 rounded-lg text-xl font-bold"
-          >
-NO
-          </button>
+            <p>Are you sure you want to reset the game?</p>
+            <div className="flex mt-4 justify-evenly">
+              <button
+                onClick={resetGame}
+                className="bg-green-600 text-white px-6 py-3 rounded-lg text-xl font-bold"
+              >
+                YES
+              </button>
+              <button
+                onClick={noResetGame}
+                className="bg-red-600 text-white px-6 py-3 rounded-lg text-xl font-bold"
+              >
+                NO
+              </button>
+            </div>
           </div>
-          </div>
-          
+
         </div>
       )}
-      <div className="bg-[#8F1504] grid grid-cols-3 grid-rows-2 gap-4 h-full w-full border-8 border-yellow-600 mt-4">
-        <div className="col-span-2 row-span-1 flex relative justify-between p-4 border-b-4 border-yellow-600">
-          <div className="text-white font-ramaraja text-6xl mt-10 font-bold mr-4">
+      <div className=" grid grid-cols-3 grid-rows-2 gap-4 h-full w-full border-8 border-yellow-600 mt-4">
+        <div className="col-span-2 row-span-1 flex relative justify-between p-4 border-b-4 border-yellow-600 bg-[#8F1504]" >
+          <div className="text-yellow-600 font-ramaraja text-6xl mt-10 font-bold mr-4">
             A
           </div>
           <div className="border-dashed border-2 border-yellow-600 rounded-lg w-full h-[20vh] bg-[#450A0366] flex pl-32 items-center justify-left">
@@ -98,10 +99,55 @@ NO
             ))}
           </div>
         </div>
-        <div className="col-span-1 row-span-2 flex justify-center border-b-4 h-52 ">
-          <div className="text-white ml-2 font-ramaraja text-4xl font-bold">
-            JOKER
+        <div className="col-span-1 row-span-1 flex justify-center border-b-4  bg-[#8F1504] h-full ">
+          <div className=" ml-2 font-ramaraja text-4xl font-bold w-full ">
+           
+            <div className="p-2 w-full ">
+            <div
+              className={`flex justify-between items-center p-5 w-full h-[220px] ${
+                sectionId === 1 ? "bg-[#07740C]" : "bg-[#FFF8D6]"
+              } text-black text-2xl font-bold `}
+            >
+              <div className="flex items-center space-x-2">
+                <div className="w-12 h-16 overflow-clip">
+                  <img src="/assets/a.png" alt="a" className="w-16" />
+                </div>
+                <span className="text-black text-5xl">
+                  1
+                </span>
+              </div>
+            </div>
+            <div
+              className={`flex justify-between items-center p-5 h-[220px]${
+                sectionId === 1 ? "bg-[#07740C]" : "bg-black z-50"
+              } text-black text-2xl font-bold`}
+            >
+              <div className="flex items-center space-x-2">
+                <div className="w-12 h-16 pt-1 overflow-clip">
+                  <img src="/assets/b.png" alt="b" className="w-16" />
+                </div>
+                <span className="text-black text-5xl">
+                 1
+                </span>
+              </div>
+            </div>
           </div>
+          </div>
+          
+        </div>
+        
+        <div className="col-span-2 row-span-1 flex justify-center p-4 bg-[#8F1504]">
+          <div className="text-yellow-600 font-ramaraja text-6xl mt-10 font-bold mr-4 ">
+            B
+          </div>
+          <div className="border-dashed border-2 border-yellow-600 rounded-lg w-full h-[20vh] bg-[#450A0366] flex items-center justify-left">
+            {bahar.map((card, index) => (
+              <img key={index} src={`/cards/${card}.png`} alt={card} className="w-36 flex justify-center align-middle" />
+            ))}
+          </div>
+        </div>
+        <div className="col-span-1 row-span-1 flex justify-center border-b-4  bg-[#8F1504] h-full ">
+          
           <div className="w-52 h-s border-dashed ml-5 border-2 border-yellow-600 bg-[#450A0366] rounded-lg flex justify-center items-center">
             <div className="flex justify-center items-center h-52">
               {joker ? (
@@ -110,16 +156,6 @@ NO
                 <img src="/assets/ocean7.png" alt="ocean7" className="w-24 h-24" />
               )}
             </div>
-          </div>
-        </div>
-        <div className="col-span-2 row-span-1 flex justify-center p-4">
-          <div className="text-white font-ramaraja text-6xl mt-10 font-bold mr-4">
-            B
-          </div>
-          <div className="border-dashed border-2 border-yellow-600 rounded-lg w-full h-[20vh] bg-[#450A0366] flex items-center justify-left">
-            {bahar.map((card, index) => (
-              <img key={index} src={`/cards/${card}.png`} alt={card} className="w-36 flex justify-center align-middle" />
-            ))}
           </div>
         </div>
       </div>

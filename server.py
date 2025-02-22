@@ -1,6 +1,17 @@
 import asyncio
 import websockets
 import json
+import motor.motor_asyncio
+from datetime import datetime
+
+# MongoDB setup
+MONGO_URI = "mongodb://localhost:27017"  # Change this if needed
+DB_NAME = "game_db"
+COLLECTION_NAME = "game_wins"
+
+client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
+db = client[DB_NAME]
+wins_collection = db[COLLECTION_NAME]
 
 connected_clients = set()
 
@@ -37,7 +48,6 @@ async def handle_connection(websocket):
             elif data["action"] == "reset_game":
                 await handle_reset_game()
 
-
     except websockets.ConnectionClosed:
         print(f"Client disconnected: {websocket.remote_address}")
     finally:
@@ -68,8 +78,12 @@ async def handle_add_card(card):
         await broadcast(update)
         winner = check_win_condition()
         if winner is not None:
+            winner_section = "andar" if winner == 0 else "bahar"
             update["action"] = "game_won"
-            update["winner"] = winner  # 0 for Andar, 1 for Bahar
+            update["winner"] = winner_section  # Store section name
+
+            # Store win in MongoDB
+            await record_win(winner)
 
             await broadcast(update)
 
@@ -84,6 +98,7 @@ async def handle_reset_game():
     }
 
     await broadcast({"action": "reset_game"})
+
 players = {
     "player1": False,
     "player2": False,
@@ -124,7 +139,14 @@ def check_win_condition():
 
     return None    
 
-
+async def record_win(winner_section):
+    """Stores the game win in MongoDB."""
+    win_record = {
+        "winner": winner_section,
+        "timestamp": datetime.utcnow(),
+    }
+    await wins_collection.insert_one(win_record)
+    print(f"Recorded win: {win_record}")
 
 async def broadcast(message):
     """Sends a message to all connected clients."""
