@@ -43,10 +43,14 @@ const WinsList = () => {
         };
 
         setWins((prevWins) => [newWin, ...prevWins]); // Add new win at the beginning
+        setTimeout(() => {
+      
+          window.location.reload();
+        }, 3000);
       }
     };
-
-    return () => ws.close(); // Cleanup WebSocket on unmount
+    
+    return () => ws.close();
   }, []);
 
   if (loading) return <p>Loading wins...</p>;
@@ -96,7 +100,7 @@ const WinsList = () => {
         ))}
       </div>
 
-      {/* Three-column layout */}
+      {/* Four-column layout */}
       <div className="grid grid-cols-4 bg-wood-pattern">
         {/* Bets Section */}
         <div className=" font-ramaraja p-4 shadow-lg text-left relative border-2 border-yellow-400">
@@ -131,14 +135,14 @@ const WinsList = () => {
         <div className="flex-1 h-8 relative">
           <div className="absolute inset-0 flex">
             <div 
-              className="h-full bg-red-600" 
+              className="h-full bg-red-600 rounded-l-full" 
               style={{ width: `${andarPercentage}%` }}
             >
               <span className="absolute left-2 top-1/2 transform -translate-y-1/2 
                              text-white font-bold">{andarPercentage}%</span>
             </div>
             <div 
-              className="h-full bg-blue-600" 
+              className="h-full bg-blue-600 rounded-r-full" 
               style={{ width: `${baharPercentage}%` }}
             >
               <span className="absolute right-2 top-1/2 transform -translate-y-1/2 

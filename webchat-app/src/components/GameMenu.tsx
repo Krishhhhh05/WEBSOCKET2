@@ -57,7 +57,7 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
         <>
 
             {/* <div className="flex flex-col md:flex-row justify-between bg-[url('/assets/wood.png')] shadow-lg border-2 border-yellow-600"> */}
-            <div className="flex flex-col md:flex-row justify-between w-full shadow-lg border-2 border-yellow-600">
+            <div className="flex flex-col md:flex-row justify-between w-full h-30 shadow-lg border-2 border-yellow-600">
                 {/* Left Section */}
                 <div className="font-questrial p-4 rounded-lg shadow-lg text-left md:w-1/4 w-full relative">
                     <img
@@ -78,7 +78,7 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
                     </div>
                 </div>
 
-                <div className="flex py-5 border px-5 gap-3 overflow-x-auto">
+                <div className="flex py-5 border border-yellow-600 px-5 gap-3 overflow-x-auto">
 
                     <img
                         src={players.player1 ? "/assets/whitehat.png" : "/assets/redhat.png"}

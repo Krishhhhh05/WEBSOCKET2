@@ -14,7 +14,7 @@ const DealerPage = () => {
   }, []);
 
   return (
-    <div>
+    <div className="h-screen">
       <GameMenu socket={socket} />
       <GameBoard socket={socket} />
     </div>
