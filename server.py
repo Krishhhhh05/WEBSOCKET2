@@ -40,6 +40,7 @@ async def handle_connection(websocket):
         async for message in websocket:
             data = json.loads(message)
             print(f"Received: {data}")
+            
 
             if data["action"] == "add_card":
                 await handle_add_card(data["card"])
@@ -47,6 +48,8 @@ async def handle_connection(websocket):
                 await toggle_player(data["player"])
             elif data["action"] == "reset_game":
                 await handle_reset_game()
+            elif data["action"] == "bet_changed":
+                await handle_change_bet(data["minBet"],data["maxBet"])
 
     except websockets.ConnectionClosed:
         print(f"Client disconnected: {websocket.remote_address}")
@@ -147,6 +150,18 @@ async def record_win(winner_section):
     }
     await wins_collection.insert_one(win_record)
     print(f"Recorded win: {win_record}")
+
+async def handle_change_bet(minBet,maxBet):
+    """changes the bets."""
+    print("in function")
+    bets = {
+        "action": "bets_changed",
+        "maxBet": maxBet,
+        "minBet": minBet
+    }
+    
+    await broadcast(bets)
+    print(f"New bets: {bets}")
 
 async def broadcast(message):
     """Sends a message to all connected clients."""

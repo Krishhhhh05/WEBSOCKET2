@@ -9,6 +9,8 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
     const [winner, setWinner] = useState<number | null>(null);
     const [andarPercentage, setAndarPercentage] = useState(50);
     const [baharPercentage, setBaharPercentage] = useState(50);
+    const [minBet, setMinBet] = useState(100);
+    const [maxBet, setMaxBet] = useState(10000);
     useEffect(() => {
         if (!socket) return;
 
@@ -38,6 +40,12 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
                 setTimeout(() => {
                     setShowWinnerModal(false);
                 }, 7000);
+            }
+            else if( data.action ==="bets_changed")
+            {
+                console.log("Bet Changed in player board",data );
+                setMinBet(data.minBet);
+                setMaxBet(data.maxBet);
             }
         };
 
@@ -122,8 +130,8 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
           <div className="text-[#f3be39] text-center font-semibold">
             <p className="text-2xl font-bold font-ramaraja">BETS</p>
             <div className="flex-col items-start justify-start text-2xl">
-              <p className="text-xl font-ramaraja">MAX: 100</p>
-              <p className="text-xl font-ramaraja">MIN: 10000</p>
+              <p className="text-xl font-ramaraja">MAX: {maxBet}</p>
+              <p className="text-xl font-ramaraja">MIN: {minBet}</p>
             </div>
           </div>
         </div>
