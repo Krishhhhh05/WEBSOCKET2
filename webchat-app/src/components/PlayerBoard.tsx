@@ -85,7 +85,7 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
                     <div className="w-60 border-dashed ml-5 border-2 border-yellow-600 bg-[#450A0366] rounded-lg flex justify-center items-center">
                         <div className="flex justify-center items-center h-52">
                             {joker ? (
-                                <img src={`/cards/${joker}.png`} alt={joker} className="w-20 my-2" />
+                                <img src={`/cards/${joker}.png`} alt={joker} className="w-36 my-2" />
                             ) : (
                                 <img src="/assets/ocean7.png" alt="ocean7" className="w-24 h-24" />
                             )}
@@ -96,9 +96,9 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
                     <div className="text-white font-ramaraja text-3xl mt-10 font-bold mr-4">
                         A
                     </div>
-                    <div className="border-dashed border-2 border-yellow-600 rounded-lg w-full h-[20vh] bg-[#450A0366] flex pl-32 items-center justify-left">
+                    <div className=" relative border-dashed border-2 border-yellow-600 rounded-lg w-full h-[20vh] bg-[#450A0366] flex items-center justify-left">
                         {andar.map((card, index) => (
-                            <img key={index} src={`/cards/${card}.png`} alt={card} className="w-14" />
+                            <img key={index} src={`/cards/${card}.png`} alt={card} className="w-36 flex justify-center absolute align-middle" style={{ left: `${index * 25}px`, zIndex: index }} />
                         ))}
                     </div>
                 </div>
@@ -107,9 +107,9 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
                     <div className="text-white font-ramaraja text-3xl mt-10 font-bold mr-4">
                         B
                     </div>
-                    <div className="border-dashed border-2 border-yellow-600 rounded-lg w-full h-[20vh] bg-[#450A0366] flex items-center justify-left">
+                    <div className="relative border-dashed border-2 border-yellow-600 rounded-lg w-full h-[20vh] bg-[#450A0366] flex items-center justify-left">
                         {bahar.map((card, index) => (
-                            <img key={index} src={`/cards/${card}.png`} alt={card} className="w-36 flex justify-center align-middle" />
+                            <img key={index} src={`/cards/${card}.png`} alt={card} className="w-36 flex justify-center absolute align-middle" style={{ left: `${index * 25}px`, zIndex: index }}/>
                         ))}
                     </div>
                 </div>

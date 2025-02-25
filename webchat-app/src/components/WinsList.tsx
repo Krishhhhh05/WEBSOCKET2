@@ -10,6 +10,7 @@ type WinRecord = {
 
 const WinsList = () => {
   const [wins, setWins] = useState<WinRecord[]>([]);
+  const [groupedWins, setGroupedWins] = useState<WinRecord[][]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,6 +20,8 @@ const WinsList = () => {
         const data = await res.json();
         console.log("data from api: ", data);
         setWins(data);
+    
+
       } catch (error) {
         console.error("Error fetching wins:", error);
       } finally {
@@ -28,7 +31,7 @@ const WinsList = () => {
 
     fetchWins();
 
-    // Connect to WebSocket
+    // WebSocket Connection
     const ws = new WebSocket("ws://localhost:6789");
 
     ws.onmessage = (event) => {
@@ -40,71 +43,105 @@ const WinsList = () => {
           winner: message.winner,
           timestamp: new Date().toISOString(),
         };
+       
 
-        setWins((prevWins) => [newWin, ...prevWins]); // Add new win at the beginning
+        setWins((prevWins) => {
+          const newWins = [newWin, ...prevWins];
+
+          setGroupedWins((prevGrouped) => {
+            let updatedGrouped = [...prevGrouped];
+
+            // If last column matches the winner, append it there
+            if (
+              updatedGrouped.length > 0 &&
+              updatedGrouped[updatedGrouped.length - 1][0].winner === newWin.winner
+            ) {
+              updatedGrouped[updatedGrouped.length - 1].push(newWin);
+            } else {
+              // Otherwise, create a new column
+              updatedGrouped.push([newWin]);
+            }
+
+            // Ensure we only keep the latest 10 columns
+            if (updatedGrouped.length > 10) {
+              updatedGrouped = updatedGrouped.slice(-10);
+            }
+
+            return updatedGrouped;
+          });
+
+
+          return newWins;
+                
+
+        });
         setTimeout(() => {
           window.location.reload();
-        }, 3000);
+       }, 3000);
       }
     };
 
     return () => ws.close();
   }, []);
 
-  if (loading) return <p>Loading wins...</p>;
+  useEffect(() => {
+    let newGroupedWins: WinRecord[][] = [];
+    let columnIndex = 0;
 
-  // Count wins for statistics
+    wins.forEach((win, index) => {
+      if (index === 0 || win.winner === wins[index - 1].winner) {
+        if (!newGroupedWins[columnIndex]) newGroupedWins[columnIndex] = [];
+        newGroupedWins[columnIndex].push(win);
+      } else {
+        columnIndex++;
+        newGroupedWins[columnIndex] = [win];
+      }
+    });
+
+    if (newGroupedWins.length > 10) {
+      newGroupedWins = newGroupedWins.slice(-10);
+    }
+
+    setGroupedWins(newGroupedWins);
+  }, [wins]);
   const andarWins = wins.filter((win) => win.winner === 0).length;
   console.log("Andar Wins:", andarWins);
   const baharWins = wins.filter((win) => win.winner === 1).length;
   console.log("Bahar Wins:", baharWins);
   const totalWins = andarWins + baharWins;
-  const andarPercentage = totalWins ? (andarWins / totalWins) * 100 : 50;
-  const baharPercentage = totalWins ? (baharWins / totalWins) * 100 : 50;
-
-  // 🔥 **Correct Grouping for Consecutive Wins in Columns**
-  let groupedWins: WinRecord[][] = [];
-  let columnIndex = 0; // Track which column to insert the next group
-  wins.forEach((win, index) => {
-    if (index === 0 || win.winner === wins[index - 1].winner) {
-      // If it's the first item or the same winner, push to the current column
-      if (!groupedWins[columnIndex]) groupedWins[columnIndex] = [];
-      groupedWins[columnIndex].push(win);
-    } else {
-      // If the winner changes, move to the next column
-      columnIndex++;
-      groupedWins[columnIndex] = [win];
-    }
-  });
+  const andarPercentage = totalWins ? Math.round((andarWins / totalWins) * 100 ): 50;
+  const baharPercentage = totalWins ? Math.round((baharWins / totalWins) * 100): 50;
 
   return (
     <div className="relative flex flex-col h-screen border border-gray-300 rounded-lg shadow-md bg-red-900 text-white">
       <Header />
-      {/* Background Logo with Glowing Effect */}
-      <div className="absolute  inset-0 flex items-center justify-center">
-      <div
-        className=" bg-contain bg-no-repeat bg-center opacity-50 animate-glow w-1/2 h-1/2 "
-        style={{ backgroundImage: `url(/assets/ocean7.png)` }}
-      ></div>
+      
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div
+          className="bg-contain bg-no-repeat bg-center opacity-50 animate-glow w-1/2 h-1/2"
+          style={{ backgroundImage: `url(/assets/ocean7.png)` }}
+        ></div>
       </div>
-            {/* Grid-style win history with proper column grouping */}
+
+      {/* Grid for Wins */}
       <div className="flex-grow grid grid-cols-10 gap-2 p-2 border border-yellow-400 rounded-md bg-red-800">
         {groupedWins.map((group, colIndex) => (
           <div key={colIndex} className="flex flex-col items-center">
             {group.map((win, rowIndex) => (
               <div key={rowIndex} className="h-24 flex items-center justify-center">
-                {win.winner === 0 ? (
-                  <img src="/assets/a.png" alt="Andar Wins" className="w-full h-full" />
-                ) : (
-                  <img src="/assets/b.png" alt="Bahar Wins" className="w-full h-full" />
-                )}
+                <img
+                  src={win.winner === 0 ? "/assets/a.png" : "/assets/b.png"}
+                  alt={win.winner === 0 ? "Andar Wins" : "Bahar Wins"}
+                  className="w-full h-full"
+                />
               </div>
             ))}
           </div>
         ))}
       </div>
 
-      {/* Four-column layout */}
+
+     
       <div className="grid grid-cols-4 bg-wood-pattern">
         {/* Bets Section */}
         <div className="font-ramaraja p-4 shadow-lg text-left relative border-2 border-yellow-400">
