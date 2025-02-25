@@ -10,6 +10,9 @@ module.exports = {
     extend: {
       backgroundImage: {
         'wood-pattern': "url('/assets/wood.png')",
+        'logo-pattern': "url('/assets/ocean7.png')",
+
+        
       },
       fontFamily: {
         questrial: ["Questrial", "sans-serif"],
@@ -20,6 +23,9 @@ module.exports = {
           '0%, 100%': { opacity: '0.50' }, // Start and end at 50% opacity
           '50%': { opacity: '0.1' }, // Middle of animation at 65% opacity
         },
+      },
+      animation: {
+        glow: 'glow 2s infinite',
       },
     },
   },

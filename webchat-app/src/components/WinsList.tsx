@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 
-
 type WinRecord = {
   _id?: string;
   winner: number; // 0 for Andar (A), 1 for Bahar (B)
@@ -44,12 +43,11 @@ const WinsList = () => {
 
         setWins((prevWins) => [newWin, ...prevWins]); // Add new win at the beginning
         setTimeout(() => {
-      
           window.location.reload();
         }, 3000);
       }
     };
-    
+
     return () => ws.close();
   }, []);
 
@@ -80,10 +78,16 @@ const WinsList = () => {
   });
 
   return (
-    <div className="flex flex-col h-screen border border-gray-300 rounded-lg shadow-md bg-red-900 text-white">
-      {/* <div className="text-lg font-bold mb-3 text-center h-24">Recent Wins (Live)</div> */}
-        <Header />
-      {/* Grid-style win history with proper column grouping */}
+    <div className="relative flex flex-col h-screen border border-gray-300 rounded-lg shadow-md bg-red-900 text-white">
+      <Header />
+      {/* Background Logo with Glowing Effect */}
+      <div className="absolute  inset-0 flex items-center justify-center">
+      <div
+        className=" bg-contain bg-no-repeat bg-center opacity-50 animate-glow w-1/2 h-1/2 "
+        style={{ backgroundImage: `url(/assets/ocean7.png)` }}
+      ></div>
+      </div>
+            {/* Grid-style win history with proper column grouping */}
       <div className="flex-grow grid grid-cols-10 gap-2 p-2 border border-yellow-400 rounded-md bg-red-800">
         {groupedWins.map((group, colIndex) => (
           <div key={colIndex} className="flex flex-col items-center">
@@ -103,7 +107,7 @@ const WinsList = () => {
       {/* Four-column layout */}
       <div className="grid grid-cols-4 bg-wood-pattern">
         {/* Bets Section */}
-        <div className=" font-ramaraja p-4 shadow-lg text-left relative border-2 border-yellow-400">
+        <div className="font-ramaraja p-4 shadow-lg text-left relative border-2 border-yellow-400">
           <img src="/assets/screw.png" alt="screw" className="absolute top-2 left-2 w-8 h-8" />
           <img src="/assets/screw.png" alt="screw" className="absolute top-2 right-2 w-8 h-8" />
           <div className="text-[#f3be39] text-center font-semibold">
@@ -116,64 +120,63 @@ const WinsList = () => {
         </div>
 
         {/* Statistics Section */}
-        <div className=" p-4  col-span-2 shadow-lg text-left relative border-2 border-yellow-400">
-        <img src="/assets/screw.png" alt="screw" className="absolute top-2 left-2 w-8 h-8" />
-        <img src="/assets/screw.png" alt="screw" className="absolute top-2 right-2 w-8 h-8" />
-          
-          
-      {/* Title */}
-      <h2 className="text-yellow-400 text-4xl font-ramaraja font-bold text-center mb-4">STATISTICS</h2>
-      
-      {/* Progress Bar Container */}
-      <div className="flex items-center justify-between gap-2">
-        {/* Andar Circle */}
-        <div className="w-16 h-16">
-          <img src="/assets/a.png" alt="Andar Wins" className="w-full h-full" />
-        </div>
+        <div className="p-4 col-span-2 shadow-lg text-left relative border-2 border-yellow-400">
+          <img src="/assets/screw.png" alt="screw" className="absolute top-2 left-2 w-8 h-8" />
+          <img src="/assets/screw.png" alt="screw" className="absolute top-2 right-2 w-8 h-8" />
 
-        {/* Progress Bar */}
-        <div className="flex-1 h-8 relative">
-          <div className="absolute inset-0 flex">
-            <div 
-              className="h-full bg-red-600 rounded-l-full" 
-              style={{ width: `${andarPercentage}%` }}
-            >
-              <span className="absolute left-2 top-1/2 transform -translate-y-1/2 
-                             text-white font-bold">{andarPercentage}%</span>
+          {/* Title */}
+          <h2 className="text-yellow-400 text-4xl font-ramaraja font-bold text-center mb-4">STATISTICS</h2>
+
+          {/* Progress Bar Container */}
+          <div className="flex items-center justify-between gap-2">
+            {/* Andar Circle */}
+            <div className="w-16 h-16">
+              <img src="/assets/a.png" alt="Andar Wins" className="w-full h-full" />
             </div>
-            <div 
-              className="h-full bg-blue-600 rounded-r-full" 
-              style={{ width: `${baharPercentage}%` }}
-            >
-              <span className="absolute right-2 top-1/2 transform -translate-y-1/2 
-                             text-white font-bold">{baharPercentage}%</span>
+
+            {/* Progress Bar */}
+            <div className="flex-1 h-8 relative">
+              <div className="absolute inset-0 flex">
+                <div
+                  className="h-full bg-red-600 rounded-l-full"
+                  style={{ width: `${andarPercentage}%` }}
+                >
+                  <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white font-bold">
+                    {andarPercentage}%
+                  </span>
+                </div>
+                <div
+                  className="h-full bg-blue-600 rounded-r-full"
+                  style={{ width: `${baharPercentage}%` }}
+                >
+                  <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white font-bold">
+                    {baharPercentage}%
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bahar Circle */}
+            <div className="w-16 h-16">
+              <img src="/assets/b.png" alt="Bahar" className="w-full h-full" />
             </div>
           </div>
         </div>
 
-        {/* Bahar Circle */}
-        <div className="w-16 h-16">
-          <img src="/assets/b.png" alt="Bahar" className="w-full h-full" />
-        </div>
-      </div>
-   
-        </div>
-
         {/* Andar/Bahar Buttons */}
         <div className="p-4 shadow-lg text-left relative border-2 border-yellow-400">
-        <img src="/assets/screw.png" alt="screw" className="absolute top-2 left-2 w-8 h-8" />
-        <img src="/assets/screw.png" alt="screw" className="absolute top-2 right-2 w-8 h-8" />
+          <img src="/assets/screw.png" alt="screw" className="absolute top-2 left-2 w-8 h-8" />
+          <img src="/assets/screw.png" alt="screw" className="absolute top-2 right-2 w-8 h-8" />
           <div className="flex justify-around items-center">
             <div className="flex flex-col items-center">
               <img src="/assets/a.png" alt="Andar Wins" className="w-20 h-20" />
-              <span className="text-2xl text-yellow-400 font-bold font-ramaraja ">Andar</span>
+              <span className="text-2xl text-yellow-400 font-bold font-ramaraja">Andar</span>
             </div>
-            
+
             <div className="flex flex-col items-center">
               <img src="/assets/b.png" alt="Bahar Wins" className="w-20 h-20" />
               <span className="text-2xl text-yellow-400 font-bold font-ramaraja">Bahar</span>
             </div>
-           
           </div>
         </div>
       </div>
