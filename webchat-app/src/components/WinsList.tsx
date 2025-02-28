@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
-
+import WinsBoards from "./WinsBoards";
 type WinRecord = {
   _id?: string;
   winner: number; // 0 for Andar (A), 1 for Bahar (B)
@@ -12,6 +12,8 @@ const WinsList = () => {
   const [wins, setWins] = useState<WinRecord[]>([]);
   const [groupedWins, setGroupedWins] = useState<WinRecord[][]>([]);
   const [loading, setLoading] = useState(true);
+  const [joker, setJoker]=useState(false);
+  const [socket, setSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
     const fetchWins = async () => {
@@ -32,7 +34,7 @@ const WinsList = () => {
     fetchWins();
 
     // WebSocket Connection
-    const ws = new WebSocket("ws://localhost:6789");
+    const ws = new WebSocket("ws://169.254.192.244:6789");
 
     ws.onmessage = (event) => {
       const message = JSON.parse(event.data);
@@ -114,6 +116,8 @@ const WinsList = () => {
 
   return (
     <div className="relative flex flex-col h-screen border border-gray-300 rounded-lg shadow-md bg-red-900 text-white">
+    {joker ? <WinsBoards socket={socket} /> :
+    <>
       <Header />
       
       <div className="absolute inset-0 flex items-center justify-center">
@@ -217,6 +221,8 @@ const WinsList = () => {
           </div>
         </div>
       </div>
+      </>
+}
     </div>
   );
 };

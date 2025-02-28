@@ -4,6 +4,15 @@ import json
 import motor.motor_asyncio
 from datetime import datetime
 
+
+import serial
+import time
+import urllib.parse
+import re
+
+ser = serial.Serial("COM1", 9600, timeout=1)  # Adjust baud rate if necessary
+
+
 # MongoDB setup
 MONGO_URI = "mongodb://localhost:27017"  # Change this if needed
 DB_NAME = "game_db"
@@ -38,6 +47,7 @@ async def handle_connection(websocket):
 
     try:
         async for message in websocket:
+            print(f"Raw message received: {message}")  # <-- Debugging print
             data = json.loads(message)
             print(f"Received: {data}")
             
@@ -50,6 +60,11 @@ async def handle_connection(websocket):
                 await handle_reset_game()
             elif data["action"] == "bet_changed":
                 await handle_change_bet(data["minBet"],data["maxBet"])
+            elif data["action"] == "key_pressed":
+                print(f"Key pressed received: {data['key']}")  # <-- Debugging print
+                if data["key"] == "A":
+                    await handle_add_card("QH")
+
 
     except websockets.ConnectionClosed:
         print(f"Client disconnected: {websocket.remote_address}")
@@ -57,6 +72,7 @@ async def handle_connection(websocket):
         connected_clients.remove(websocket)
 
 async def handle_add_card(card):
+    print(card)
     """Handles adding a card to the game."""
     global game_state
 
@@ -170,11 +186,47 @@ async def broadcast(message):
             *[client.send(json.dumps(message)) for client in connected_clients]
         )
 
+
+
+
+def extract_card_value(input_string):
+    """
+    Extract the card value from the input string formatted like:
+    [Manual Burn Cards]<Card:{data}>
+    """
+    match = re.search(r"<Card:(.*?)>", input_string)
+    return match.group(1) if match else None
+
+async def handle_change_bet(minBet,maxBet):
+    """changes the bets."""
+    print("in function")
+    bets = {
+        "action": "bets_changed",
+        "maxBet": maxBet,
+        "minBet": minBet
+    }
+    
+    await broadcast(bets)
+    print(f"New bets: {bets}")
+async def read_from_serial():
+    """Continuously reads card values from the casino shoe reader and adds them to the game."""
+    while True:
+        if ser.in_waiting > 0:
+            raw_data = ser.readline().decode("utf-8").strip()
+            card = extract_card_value(raw_data)
+            print ("card:",card)
+            if card:
+                await handle_add_card(card)
+        await asyncio.sleep(0.1)  # Adjust delay if necessary
+
 async def main():
-    """Starts the WebSocket server."""
-    async with websockets.serve(handle_connection, "localhost", 6789):
-        print("WebSocket server running on ws://localhost:6789")
-        await asyncio.Future()
+    print("Connected to:", ser.name)
+    """Starts the WebSocket server and serial reader."""
+    server = websockets.serve(handle_connection, "0.0.0.0", 6789)
+    print("WebSocket server running on ws://169.254.192.244:6789")
+
+    await asyncio.gather(server, read_from_serial())  # Run both tasks concurrently
+
 
 if __name__ == "__main__":
     asyncio.run(main())

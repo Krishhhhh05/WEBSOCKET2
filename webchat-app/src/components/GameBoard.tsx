@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import WinnerModal from "@/components/WinnerModal";
+import { motion, AnimatePresence } from "framer-motion";
+
 const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
   const [joker, setJoker] = useState<string | null>(null);
   const [andar, setAndar] = useState<string[]>([]);
@@ -10,6 +12,7 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
   const [winner, setWinner] = useState<string | null>(null);
   const [showResetButton, setShowResetButton] = useState(false);
   const [sectionId, setSectionId] = useState(1);
+  
   useEffect(() => {
     if (!socket) return;
 
@@ -102,9 +105,66 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
             A
           </div>
           <div className="border-dashed relative border-2 border-yellow-600 rounded-lg w-full h-full bg-[#450A0366]  flex items-center justify-left">
-            {andar.map((card, index) => (
-              <img key={index} src={`/cards/${card}.png`} alt={card} className="w-36 flex justify-center absolute align-middle" style={{ left: `${index * 25}px`, zIndex: index }} />
-            ))}
+          {andar.map((card, index) => {
+              const batchIndex = Math.floor(index / 10);
+              const positionInBatch = index % 10;
+              const isTenthCard = (index + 1) % 10 === 0;
+              const isCurrentBatch = batchIndex === Math.floor((andar.length - 1) / 10);
+
+              // Only render cards from the current batch
+              if (!isCurrentBatch) return null;
+
+              // For the 10th card (when it exists)
+              if (isTenthCard) {
+                return (
+                  <AnimatePresence key={`card-${index}`}>
+                    <motion.img
+                      key={`motion-${index}`}
+                      src={`/cards/${card}.png`}
+                      alt={card}
+                      className="w-36 flex justify-center absolute align-middle"
+                      style={{
+                        zIndex: 10, // Always on top
+                      }}
+                      initial={{ x: 225 /* Starting position to the right */ }}
+                      animate={{ x: 0 /* Final position at left */ }}
+                      transition={{ duration: 0.5 }}
+                    />
+                  </AnimatePresence>
+                );
+              }
+
+              // For cards 1-9 that get swept away
+              return (
+                <AnimatePresence key={`card-${index}`}>
+                  <motion.img
+                    key={`motion-${index}`}
+                    src={`/cards/${card}.png`}
+                    alt={card}
+                    className="w-36 flex justify-center absolute align-middle"
+                    style={{
+                      left: `${positionInBatch * 25}px`,
+                      zIndex: positionInBatch,
+                    }}
+                    // When the 10th card exists, animate these cards out in sequence
+                    animate={
+                      andar.length % 10 === 0 && andar.length >= 10 ?
+                        {
+                          opacity: 0,
+                          x: -100 // Move left as they disappear
+                        } :
+                        { opacity: 1 }
+                    }
+                    transition={{
+                      // Stagger the disappearing effect based on position
+                      duration: 0.3,
+                      delay: andar.length % 10 === 0 ? (9 - positionInBatch) * 0.05 : 0
+                      // Cards closer to the right disappear first (10th card comes from right)
+                    }}
+                  />
+                </AnimatePresence>
+              );
+            })}
           </div>
         </div>
         <div className="col-span-1 row-span-1 flex justify-center  ">
@@ -149,9 +209,66 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
             B
           </div>
           <div className="relative border-dashed border-2 border-yellow-600 rounded-lg w-full h-full bg-[#450A0366] flex items-center justify-left">
-            {bahar.map((card, index) => (
-              <img key={index} src={`/cards/${card}.png`} alt={card} className="w-36 flex justify-center absolute align-middle" style={{ left: `${index * 25}px`, zIndex: index }} />
-            ))}
+          {bahar.map((card, index) => {
+              const batchIndex = Math.floor(index / 10);
+              const positionInBatch = index % 10;
+              const isTenthCard = (index + 1) % 10 === 0;
+              const isCurrentBatch = batchIndex === Math.floor((bahar.length - 1) / 10);
+
+              // Only render cards from the current batch
+              if (!isCurrentBatch) return null;
+
+              // For the 10th card (when it exists)
+              if (isTenthCard) {
+                return (
+                  <AnimatePresence key={`card-${index}`}>
+                    <motion.img
+                      key={`motion-${index}`}
+                      src={`/cards/${card}.png`}
+                      alt={card}
+                      className="w-36 flex justify-center absolute align-middle"
+                      style={{
+                        zIndex: 10, // Always on top
+                      }}
+                      initial={{ x: 225 /* Starting position to the right */ }}
+                      animate={{ x: 0 /* Final position at left */ }}
+                      transition={{ duration: 0.5 }}
+                    />
+                  </AnimatePresence>
+                );
+              }
+
+              // For cards 1-9 that get swept away
+              return (
+                <AnimatePresence key={`card-${index}`}>
+                  <motion.img
+                    key={`motion-${index}`}
+                    src={`/cards/${card}.png`}
+                    alt={card}
+                    className="w-36 flex justify-center absolute align-middle"
+                    style={{
+                      left: `${positionInBatch * 25}px`,
+                      zIndex: positionInBatch,
+                    }}
+                    // When the 10th card exists, animate these cards out in sequence
+                    animate={
+                      bahar.length % 10 === 0 && bahar.length >= 10 ?
+                        {
+                          opacity: 0,
+                          x: -100 // Move left as they disappear
+                        } :
+                        { opacity: 1 }
+                    }
+                    transition={{
+                      // Stagger the disappearing effect based on position
+                      duration: 0.3,
+                      delay: bahar.length % 10 === 0 ? (9 - positionInBatch) * 0.05 : 0
+                      // Cards closer to the right disappear first (10th card comes from right)
+                    }}
+                  />
+                </AnimatePresence>
+              );
+            })}
           </div>
         </div>
         <div className="col-span-1 row-span-1 flex  flex-col items-center justify-center  bg-[#8F1504] h-full -mb-8 ">

@@ -1,6 +1,6 @@
 const Header = () => {
     return (
-      <div className="flex justify-between items-center  bg-wood-pattern relative font-questrial">
+      <div className="flex justify-between items-center  bg-black relative font-questrial">
         <img src="/assets/ocean7.png" alt="ocean7" className="w-20 h-20 p-1" />
         <img
           src="/assets/logo.png"
