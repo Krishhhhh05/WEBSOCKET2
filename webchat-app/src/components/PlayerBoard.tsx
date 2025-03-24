@@ -53,7 +53,7 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
         setBahar([]);
         setShowWinnerModal(false); // Hide modal on reset
         setGameOver(() => false); // Correctly mark game as over
-      } else if (data.action === "update_players" && !gameOver) {
+      } else if (data.action === "update_players" && !joker) {
         console.log(data.players, "players");
       }
       else if (data.action === "game_won") {

@@ -51,6 +51,8 @@ async def handle_connection(websocket):
                 await handle_reset_game()
             elif data["action"] == "bet_changed":
                 await handle_change_bet(data["minBet"],data["maxBet"])
+            elif data["action"] == "undo_card":
+                await undo_card()
 
     except websockets.ConnectionClosed:
         print(f"Client disconnected: {websocket.remote_address}")
@@ -105,6 +107,25 @@ async def handle_reset_game():
     }
 
     await broadcast({"action": "reset_game"})
+
+async def undo_card():
+    """Removes the last card from the previous section."""
+    global game_state
+
+    if game_state["next_section"] == "andar":
+        if game_state["bahar"]:  # Ensure there's a card to remove
+            game_state["bahar"].pop()
+    else:  # next_section is "bahar"
+        if game_state["andar"]:  # Ensure there's a card to remove
+            game_state["andar"].pop()
+
+    await broadcast({
+        "action": "update_game",
+        "joker": game_state["joker"],
+        "andar": game_state["andar"],
+        "bahar": game_state["bahar"],
+    })
+
 
 players = {
     "player1": False,

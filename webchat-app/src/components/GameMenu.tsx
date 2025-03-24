@@ -8,6 +8,7 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
   const [maxBet, setMaxBet] = useState(10000);
   const [newMinBet, setNewMinBet] = useState(minBet);
   const [newMaxBet, setNewMaxBet] = useState(maxBet);
+  const [joker,setJoker]= useState("");
 
   const [players, setPlayers] = useState<{
     player1: boolean;
@@ -30,7 +31,10 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
 
     const handleMessage = (event: MessageEvent) => {
       const data = JSON.parse(event.data);
-      if (data.action === "update_players") {
+      if (data.action === "set_joker") {
+        setJoker(data.joker);
+      }
+      else if (data.action === "update_players") {
         setPlayers(data.players);
         console.log(data, " for players");
       }
@@ -50,6 +54,10 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
   }, [socket]);
 
   const togglePlayer = (player: "player1" | "player2" | "player3" | "player4" | "player5" | "player6") => {
+    if(joker){
+      console.log("cannot add new player");
+      return;
+    }
     if (socket) {
       socket.send(JSON.stringify({ action: "toggle_player", player }));
     }
@@ -62,12 +70,21 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
       setCardInput("");
     }
   };
+  const undoCard = () => {
+    if ( socket) {
+      socket.send(JSON.stringify({ action: "undo_card" }));
+      
+    }
+  };
+
 
   const resetGame = () => {
     if (socket) {
       socket.send(JSON.stringify({ action: "reset_game" }));
+      setJoker("");
     }
   };
+
 
   const changeBets = () => {
     if (socket) {
@@ -158,6 +175,9 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
                       <button onClick={resetGame} className="bg-red-500 text-white p-2 w-full mb-2">
                         Reset Game
                       </button>
+                      <button onClick={undoCard} className="bg-green-500 text-white p-2 w-full mb-2">
+                        Undo Card
+                        </button>
                       <div className="flex flex-col gap-2">
                         <input
                           type="number"
