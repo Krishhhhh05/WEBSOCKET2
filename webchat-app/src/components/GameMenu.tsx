@@ -80,7 +80,7 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row justify-between w-full h-30 shadow-lg border-2 border-yellow-600">
+      <div className="flex flex-col md:flex-row justify-between w-full h-30 shadow-lg border-2 border-yellow-600 bg-wood-pattern">
         {/* Left Section */}
         <div className="font-questrial p-4 rounded-lg shadow-lg text-left md:w-1/4 w-full relative">
           <img src="/assets/screw.png" alt="screw" className="absolute top-2 left-2 w-8 h-8" />

@@ -11,6 +11,8 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
     const [baharPercentage, setBaharPercentage] = useState(50);
     const [minBet, setMinBet] = useState(100);
     const [maxBet, setMaxBet] = useState(10000);
+    const [gameOver, setGameOver] = useState(false); // Track if game has ended
+
     useEffect(() => {
         if (!socket) return;
 
@@ -21,14 +23,34 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
             if (data.action === "set_joker") {
                 setJoker(data.joker);
             } else if (data.action === "update_game") {
+                      console.log("gameOver:",gameOver)
+                if (gameOver) {
+                  // Prevent further updates and show invalid card pop-up
+                  console.log("Invalid card, reset first!!") // Display invalid message
+                  return;
+              }
                 setJoker(data.joker);
                 setAndar(data.andar);
                 setBahar(data.bahar);
+                if (data.winner ) {
+         
+                  setWinner(data.winner);
+                  setGameOver(() => true); // Correctly mark game as over
+                console.log("Winner:", data.winner);
+                setShowWinnerModal(true)
+        
+                // Auto-hide the modal after 7 seconds
+                setTimeout(() => {
+                  setShowWinnerModal(false);
+                  
+                }, 5000);
+              }
             } else if (data.action === "reset_game") {
                 setJoker(null);
                 setAndar([]);
                 setBahar([]);
                 setShowWinnerModal(false); // Hide modal on reset
+                setGameOver(() => false); // Correctly mark game as over
             } else if (data.action === "update_players") {
                 console.log(data.players, "players");
             }

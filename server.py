@@ -10,7 +10,7 @@ import time
 import urllib.parse
 import re
 
-ser = serial.Serial("COM1", 9600, timeout=1)  # Adjust baud rate if necessary
+ser = serial.Serial("COM1", 9600, timeout=0.1)  # Adjust baud rate if necessary
 
 
 # MongoDB setup
@@ -79,7 +79,8 @@ async def handle_add_card(card):
     if game_state["joker"] is None:
         game_state["joker"] = card  # First card is Joker
         update = {"action": "set_joker", "joker": card}
-        await broadcast(update)
+        asyncio.create_task(broadcast(update))  # <-- Fire and forget
+
     else:
         # Assign card to the current section
         section = game_state["next_section"]
@@ -94,17 +95,24 @@ async def handle_add_card(card):
             "andar": game_state["andar"],
             "bahar": game_state["bahar"],
         }
-        await broadcast(update)
+        print(update)
+        
+        asyncio.create_task(broadcast(update))  # <-- Fire and forget
+
         winner = check_win_condition()
+        
         if winner is not None:
             winner_section = "andar" if winner == 0 else "bahar"
-            update["action"] = "game_won"
+            update["action"] = "update_game"
+           
             update["winner"] = winner_section  # Store section name
 
             # Store win in MongoDB
             await record_win(winner)
+            print(winner)
 
-            await broadcast(update)
+            # asyncio.create_task(broadcast(update))  # <-- Fire and forget
+
 
 async def handle_reset_game():
     """Resets the game state."""
@@ -208,16 +216,31 @@ async def handle_change_bet(minBet,maxBet):
     
     await broadcast(bets)
     print(f"New bets: {bets}")
+
 async def read_from_serial():
-    """Continuously reads card values from the casino shoe reader and adds them to the game."""
     while True:
+        # start_time = time.time()  # Start the timer
+
         if ser.in_waiting > 0:
             raw_data = ser.readline().decode("utf-8").strip()
-            card = extract_card_value(raw_data)
-            print ("card:",card)
+
+            # start_time = time.time()
+            match = re.search(r"<Card:(.*?)>", raw_data)
+            card= match.group(1) if match else None
+            # end_time = time.time() 
+            # print(f"regex took { end_time - start_time:.4f} seconds")
+            print("card:", card)
             if card:
-                await handle_add_card(card)
-        await asyncio.sleep(0.1)  # Adjust delay if necessary
+                # start_time = time.time()
+                asyncio.create_task(handle_add_card(card))
+                # end_time = time.time() 
+                # print(f"asynchio iteration took { end_time - start_time:.4f} seconds")
+
+
+        # end_time = time.time()  
+        # print(f"Loop iteration took { end_time - start_time:.4f} seconds")
+
+        await asyncio.sleep(0.1)  
 
 async def main():
     print("Connected to:", ser.name)
@@ -230,3 +253,5 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+

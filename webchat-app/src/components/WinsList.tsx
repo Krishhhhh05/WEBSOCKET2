@@ -12,8 +12,9 @@ const WinsList = () => {
   const [wins, setWins] = useState<WinRecord[]>([]);
   const [groupedWins, setGroupedWins] = useState<WinRecord[][]>([]);
   const [loading, setLoading] = useState(true);
-  const [joker, setJoker]=useState(false);
+  const [joker, setJoker] = useState<string | null>(null);
   const [socket, setSocket] = useState<WebSocket | null>(null);
+
 
   useEffect(() => {
     const fetchWins = async () => {
@@ -35,6 +36,8 @@ const WinsList = () => {
 
     // WebSocket Connection
     const ws = new WebSocket("ws://169.254.192.244:6789");
+    setSocket(ws);
+
 
     ws.onmessage = (event) => {
       const message = JSON.parse(event.data);
@@ -81,6 +84,15 @@ const WinsList = () => {
           window.location.reload();
        }, 3000);
       }
+      else if (message.action === "set_joker") {
+       console.log("joker here");
+       setJoker(message.joker);
+      }
+      else if (message.action==="reset_game"){
+        setJoker(null);
+        window.location.reload();
+
+      }
     };
 
     return () => ws.close();
@@ -116,7 +128,7 @@ const WinsList = () => {
 
   return (
     <div className="relative flex flex-col h-screen border border-gray-300 rounded-lg shadow-md bg-red-900 text-white">
-    {joker ? <WinsBoards socket={socket} /> :
+    {joker ? <WinsBoards socket={socket} joker={joker}/> :
     <>
       <Header />
       

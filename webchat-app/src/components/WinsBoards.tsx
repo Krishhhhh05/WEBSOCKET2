@@ -1,8 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import WinnerModal from "@/components/WinnerModal";
-const WinsBoards = ({ socket }: { socket: WebSocket | null }) => {
-  const [joker, setJoker] = useState<string | null>(null);
+import Header from "@/components/Header"
+const WinsBoards = ({ socket ,joker}: { socket: WebSocket | null , joker: string| null}) => {
+  // const [joker, setJoker] = useState<string | null>(null);
   const [andar, setAndar] = useState<string[]>([]);
   const [bahar, setBahar] = useState<string[]>([]);
   const [cardInput, setCardInput] = useState("");
@@ -17,10 +18,11 @@ const WinsBoards = ({ socket }: { socket: WebSocket | null }) => {
       const data = JSON.parse(event.data);
       console.log("Received:", data);
 
-      if (data.action === "set_joker") {
-        setJoker(data.joker);
-      } else if (data.action === "update_game") {
-        setJoker(data.joker);
+      // if (data.action === "set_joker") {
+      //   setJoker(data.joker);
+      // } else 
+      if (data.action === "update_game") {
+        // setJoker(data.joker);
         setAndar(data.andar);
         setBahar(data.bahar);
 
@@ -31,7 +33,7 @@ const WinsBoards = ({ socket }: { socket: WebSocket | null }) => {
         
         
       } else if (data.action === "reset_game") {
-        setJoker(null);
+        // setJoker(null);
         setAndar([]);
         setBahar([]);
         setSectionId(1); 
@@ -48,7 +50,7 @@ const WinsBoards = ({ socket }: { socket: WebSocket | null }) => {
         setTimeout(() => {
           setShowWinnerModal(false);
           setShowResetButton(true);
-        }, 7000);
+        }, 5000);
       }
     };
 
@@ -73,103 +75,112 @@ const WinsBoards = ({ socket }: { socket: WebSocket | null }) => {
 
   return (
     <div className="flex flex-col items-center   bg-[#8F1504]  w-full">
-      <WinnerModal show={showWinnerModal} onClose={() => setShowWinnerModal(false)} winner={winner} />
-      {showResetButton && (
-        <div className="flex z-50 items-center justify-center h-full w-full absolute">
-          <div className="bg-white p-4 rounded-lg shadow-lg text-2xl font-bold text-black">
-            <p>Are you sure you want to reset the game?</p>
-            <div className="flex mt-4 justify-evenly">
-              <button
-                onClick={resetGame}
-                className="bg-green-600 text-white px-6 py-3 rounded-lg text-xl font-bold"
-              >
-                YES
-              </button>
-              <button
-                onClick={noResetGame}
-                className="bg-red-600 text-white px-6 py-3 rounded-lg text-xl font-bold"
-              >
-                NO
-              </button>
-            </div>
+    <div className="w-full">
+    <Header />
+    </div>
+    
+    <WinnerModal show={showWinnerModal} onClose={() => setShowWinnerModal(false)} winner={winner} />
+    {showResetButton && (
+      <div className="flex z-50 items-center justify-center h-full w-full absolute">
+        <div className="bg-white p-4 rounded-lg shadow-lg text-2xl font-bold text-black">
+          <p>Are you sure you want to reset the game?</p>
+          <div className="flex mt-4 justify-evenly">
+            <button
+              onClick={resetGame}
+              className="bg-green-600 text-white px-6 py-3 rounded-lg text-xl font-bold"
+            >
+              YES
+            </button>
+            <button
+              onClick={noResetGame}
+              className="bg-red-600 text-white px-6 py-3 rounded-lg text-xl font-bold"
+            >
+              NO
+            </button>
           </div>
+        </div>
 
+      </div>
+    )}
+    <div className=" grid grid-cols-3 grid-rows-2 w-full border-4 border-yellow-600 h-screen">
+      
+      <div className="col-span-2 row-span-1 flex relative  justify-between p-4 border-b-4 border-r-4 border-yellow-600 bg-[#8F1504] " >
+        <div className="text-yellow-600 font-ramaraja text-6xl mt-10 font-bold mr-4">
+          A
         </div>
-      )}
-      <div className=" grid grid-cols-3 grid-rows-2 w-full border-4 border-yellow-600 h-screen">
-        <div className="col-span-2 row-span-1 flex relative  justify-between p-4 border-b-4 border-r-4 border-yellow-600 bg-[#8F1504] " >
-          <div className="text-yellow-600 font-ramaraja text-6xl mt-10 font-bold mr-4">
-            A
-          </div>
-          <div className="border-dashed relative border-2 border-yellow-600 rounded-lg w-full h-full bg-[#450A0366]  flex items-center justify-left">
-            {andar.map((card, index) => (
-              <img key={index} src={`/cards/${card}.png`} alt={card} className="w-36 flex justify-center absolute align-middle" style={{ left: `${index * 25}px`, zIndex: index }} />
-            ))}
-          </div>
-        </div>
-        <div className="col-span-1 row-span-1 flex justify-center border-b-4 border-yellow-600 ">
-          <div className=" ml-2 font-ramaraja text-4xl font-bold w-full p-4">
-           
-            <div className="p-2 w-full ">
-            <div
-              className={`flex justify-between items-center p-5 w-full h-[7rem]  ${
-                sectionId === 0 ? "bg-[#07740C]" : "bg-[#FFF8D6]"
-              } text-black text-2xl font-bold `}
-            >
-              <div className="flex items-center space-x-2">
-                <div className="w-12 h-12 overflow-clip">
-                  <img src="/assets/a.png" alt="a" className="w-16" />
-                </div>
-                <span className="text-black text-5xl">
-                 {andar.length}
-                </span>
-              </div>
-            </div>
-            <div
-              className={`flex justify-between items-center p-5 h-[7rem] ${
-                sectionId === 1 ? "bg-[#07740C]" : "bg-[#FFF8D6] z-50"
-              } text-black text-2xl font-bold`}
-            >
-              <div className="flex items-center space-x-2">
-                <div className="w-12 h-16 pt-1 overflow-clip">
-                  <img src="/assets/b.png" alt="b" className="w-16" />
-                </div>
-                <span className="text-black text-5xl">
-                 {bahar.length}
-                </span>
-              </div>
-            </div>
-          </div>
-          </div>
-          
-        </div>
-        
-        <div className="col-span-2 row-span-1 flex relative  justify-between p-4 border-r-4 border-yellow-600 bg-[#8F1504] ">
-          <div className="text-yellow-600 font-ramaraja text-6xl mt-10 font-bold mr-4 ">
-            B
-          </div>
-          <div className="relative border-dashed border-2 border-yellow-600 rounded-lg w-full h-full bg-[#450A0366] flex items-center justify-left">
-            {bahar.map((card, index) => (
-              <img key={index} src={`/cards/${card}.png`} alt={card} className="w-36 flex justify-center absolute align-middle" style={{ left: `${index * 25}px`, zIndex: index }} />
-            ))}
-          </div>
-        </div>
-        <div className="col-span-1 row-span-1 flex  flex-col items-center justify-center  bg-[#8F1504] h-full -mb-8 ">
-        <div className="text-yellow-600 font-ramaraja text-4xl font-bold mb-2">
-            JOKER
-          </div>
-          <div className="w-60 border-dashed ml-5 border-2 border-yellow-600 bg-[#450A0366] rounded-lg flex justify-center items-center">
-            <div className="flex justify-center items-center h-[14rem]">
-              {joker ? (
-                <img src={`/cards/${joker}.png`} alt={joker} className="w-28" />
-              ) : (
-                <img src="/assets/ocean7.png" alt="ocean7" className="w-24 h-24" />
-              )}
-            </div>
-          </div>
+        <div className="border-dashed relative border-2 border-yellow-600 rounded-lg w-full h-full bg-[#450A0366]  flex items-center justify-left">
+          {andar.map((card, index) => (
+            <img key={index} src={`/cards/${card}.png`} alt={card} className="w-60 flex justify-center absolute align-middle" style={{ left: `${index * 25}px`, zIndex: index }} />
+          ))}
         </div>
       </div>
+      <div className="col-span-1 row-span-1 flex flex-col justify-center border-b-4 border-yellow-600 h-full">
+<div className="ml-2 font-ramaraja text-4xl font-bold w-full p-4 h-full flex flex-col">
+  <div className="p-2 w-full h-full flex flex-col gap-4">
+    {/* First Section */}
+    <div
+      className={`flex justify-between items-center p-5 w-full h-1/2 flex-grow ${
+        sectionId === 0 ? "bg-[#07740C]" : "bg-[#FFF8D6]"
+      } text-black text-2xl font-bold`}
+    >
+      <div className="flex items-center space-x-2">
+        <div className="w-12 h-12 overflow-clip">
+          <img src="/assets/a.png" alt="a" className="w-16" />
+        </div>
+        <span className="text-black text-5xl">{andar.length}</span>
+      </div>
     </div>
+
+    {/* Second Section */}
+    <div
+      className={`flex justify-between items-center p-5 w-full h-1/2 flex-grow ${
+        sectionId === 1 ? "bg-[#07740C]" : "bg-[#FFF8D6]"
+      } text-black text-2xl font-bold`}
+    >
+      <div className="flex items-center space-x-2">
+        <div className="w-12 h-16 pt-1 overflow-clip">
+          <img src="/assets/b.png" alt="b" className="w-16" />
+        </div>
+        <span className="text-black text-5xl">{bahar.length}</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+      
+      <div className="col-span-2 row-span-1 flex relative  justify-between p-4 border-r-4 border-yellow-600 bg-[#8F1504] ">
+        <div className="text-yellow-600 font-ramaraja text-6xl mt-10 font-bold mr-4 ">
+          B
+        </div>
+        <div className="relative border-dashed border-2 border-yellow-600 rounded-lg w-full h-full bg-[#450A0366] flex items-center justify-left">
+          {bahar.map((card, index) => (
+            <img key={index} src={`/cards/${card}.png`} alt={card} className="w-60 flex justify-center absolute align-middle" style={{ left: `${index * 25}px`, zIndex: index }} />
+          ))}
+        </div>
+      </div>
+      <div className="col-span-1 row-span-1 flex flex-col items-center justify-between bg-[#8F1504] h-full w-full p-4">
+
+{/* Joker Text - Takes up flexible space */}
+<div className="text-yellow-600 font-ramaraja text-6xl font-bold  mb-4">
+  JOKER
+</div>
+
+{/* Dotted Border Box - Takes up flexible space */}
+<div className="w-full border-dashed border-2 border-yellow-600 bg-[#450A0366] rounded-lg flex justify-center items-center flex-grow ">
+   
+  <div className="flex justify-center items-center h-full">
+    {joker ? (
+      <img src={`/cards/${joker}.png`} alt={joker} className="w-60" />
+    ) : (
+      <img src="/assets/ocean7.png" alt="ocean7" className="w-24 h-24" />
+    )}
+  </div>
+</div>
+</div>
+
+    </div>
+  </div>
   );
 };
 
