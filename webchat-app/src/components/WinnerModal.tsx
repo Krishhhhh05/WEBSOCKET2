@@ -17,12 +17,12 @@ const WinnerModal = ({ show, onClose, winner }: { show: boolean; onClose: () => 
       // Hide the modal after 7 seconds
       const timer = setTimeout(() => {
         onClose();
-      }, 70000);
+      }, 700000);
 
       // Stop confetti after 5 seconds
       const confettiTimer = setTimeout(() => {
         setShowConfetti(false);
-      }, 50000);
+      }, 500000);
 
       return () => {
         clearTimeout(timer);

@@ -35,7 +35,7 @@ const WinsList = () => {
     fetchWins();
 
     // WebSocket Connection
-    const ws = new WebSocket("ws://169.254.192.244:6789");
+    const ws = new WebSocket("ws://localhost:6789");
     setSocket(ws);
 
 
@@ -80,10 +80,9 @@ const WinsList = () => {
                 
 
         });
-        setTimeout(() => {
-          window.location.reload();
-       }, 3000);
+        
       }
+      
       else if (message.action === "set_joker") {
        console.log("joker here");
        setJoker(message.joker);

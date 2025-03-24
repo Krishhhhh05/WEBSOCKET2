@@ -28,7 +28,7 @@ def run_python_server():
     subprocess.Popen("python server.py", cwd=os.getcwd(), shell=True)
 
 def open_url():
-    webbrowser.open("http://169.254.192.244:3000/")
+    webbrowser.open("http://localhost:3000/")
 def close_app():
     close_serial_port()  # Ensure COM1 is released on closing
     root.destroy()

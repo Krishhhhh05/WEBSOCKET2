@@ -39,22 +39,6 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
         const totalCards = data.andar.length + data.bahar.length;
         setSectionId(totalCards % 2 === 0 ? 1 : 0);
 
-        if (data.winner ) {
-         
-          setWinner(data.winner);
-          setGameOver(() => true); // Correctly mark game as over
-        console.log("Winner:", data.winner);
-        setShowWinnerModal(true)
-
-        // Auto-hide the modal after 7 seconds
-        setTimeout(() => {
-          setShowWinnerModal(false);
-          setShowResetButton(true);
-        }, 5000);
-      }
-
-
-
       } else if (data.action === "reset_game") {
         setJoker(null);
         setAndar([]);
@@ -64,6 +48,19 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
         setShowWinnerModal(false); // Hide modal on reset
       } else if (data.action === "update_players") {
         console.log(data.players, "players");
+      }
+      else if (data.action === "game_won" && !gameOver) {
+        setWinner(data.winner);
+        setGameOver(() => true);
+        console.log("Game Over",gameOver); 
+        console.log("Winner:", data.winner);
+        setShowWinnerModal(true);
+
+        // Auto-hide the modal after 7 seconds
+        setTimeout(() => {
+          setShowWinnerModal(false);
+          setShowResetButton(true);
+        }, 10000);
       }
       
     };
