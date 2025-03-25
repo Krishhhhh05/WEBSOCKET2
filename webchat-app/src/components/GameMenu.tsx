@@ -16,6 +16,7 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
   const [winner, setWinner] = useState<string | null>(null);
   const [mode, setMode] = useState<"manual" | "automatic" | "live">("manual");
   const [auto, setAuto] = useState(false);
+  const [winner_section, setWinnerSection] = useState("");
   const [players, setPlayers] = useState<{
     player1: boolean;
     player2: boolean;
@@ -122,9 +123,15 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
 
         setShowWinnerModal(false);
       }, 5000);
+      if (winner == "andar") {
+        setWinnerSection("0");
+      }
+      else {  
+        setWinnerSection("1");
+      }
       
       
-        socket.send(JSON.stringify({ action: "game_won", winner: winner }));
+        socket.send(JSON.stringify({ action: "game_won", winner: winner , winner_section:winner_section}));
       
       console.log({ action: "game_won", winner: winner });
     }

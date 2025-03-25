@@ -99,7 +99,7 @@ async def handle_add_card(card):
         }
         await broadcast(update)
         winner = check_win_condition()
-        print("winner",winner)
+        print("winner in check win",winner)
         if winner is not None:
 
             winner_section = "andar" if winner == 0 else "bahar"
@@ -108,6 +108,7 @@ async def handle_add_card(card):
 
             # Store win in MongoDB
             await record_win(winner)
+            print("winner in record win",winner)
 
             await broadcast(update)
 
