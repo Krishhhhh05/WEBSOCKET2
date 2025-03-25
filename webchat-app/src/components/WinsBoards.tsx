@@ -45,8 +45,9 @@ const WinsBoards = ({ socket ,joker}: { socket: WebSocket | null , joker: string
       } else if (data.action === "update_players") {
         console.log(data.players, "players");
       }
-      else if (data.action === "game_won"&& !gameOver) {
-        setWinner(data.winner);
+      // else if (data.action === "game_won"&& !gameOver) {
+        else if (data.action === "game_won") {
+          setWinner(data.winner);
         console.log("Winner:", data.winner);
         setGameOver(() => true);
         setShowWinnerModal(true);

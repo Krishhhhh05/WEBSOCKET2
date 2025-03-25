@@ -54,7 +54,7 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
         setGameOver(() => true);
         console.log("Game Over",gameOver); 
         console.log("Winner:", data.winner);
-        setShowWinnerModal(true);
+        // setShowWinnerModal(true);
 
         // Auto-hide the modal after 7 seconds
         setTimeout(() => {

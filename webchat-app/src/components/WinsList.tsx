@@ -40,14 +40,18 @@ const WinsList = () => {
 
 
     ws.onmessage = (event) => {
+      console.log("Raw WebSocket message:", event.data);  // Log everything
+
       const message = JSON.parse(event.data);
       console.log("Received in grid :", message);
 
       if (message.action === "game_won") {
+        console.log("game_won")
         const newWin: WinRecord = {
           winner: message.winner,
           timestamp: new Date().toISOString(),
         };
+        
        
 
         setWins((prevWins) => {

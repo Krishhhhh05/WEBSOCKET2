@@ -270,6 +270,8 @@ async def record_win(winner_section):
     }
     await wins_collection.insert_one(win_record)
     print(f"Recorded win: {win_record}")
+    update = {"action": "game_won", "winner": winner_section}
+    await broadcast(update)
 
 async def handle_change_bet(minBet,maxBet):
     """changes the bets."""
