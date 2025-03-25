@@ -61,18 +61,12 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
 
 
         setShowWinnerModal(true);
+        setWinner(data.winner);
         // setTimeout(() => {
 
         //   setShowWinnerModal(false);
         // }, 5000);
-        if (data.winner == "0") {
-          socket.send(JSON.stringify({ action: "game_won", winner: 0 }));
-          setWinner("andar");
-        }
-        if (data.winner == "1") {
-          socket.send(JSON.stringify({ action: "game_won", winner: 1 }));
-          setWinner("bahar");
-        }
+        
         console.log({ action: "game_won", winner_section: data.winner });
       
 

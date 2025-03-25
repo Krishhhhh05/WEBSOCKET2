@@ -122,12 +122,10 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
 
         setShowWinnerModal(false);
       }, 5000);
-      if (winner == "andar") {
-        socket.send(JSON.stringify({ action: "game_won", winner: 0 }));
-      }
-      if (winner == "bahar") {
-        socket.send(JSON.stringify({ action: "game_won", winner: 1 }));
-      }
+      
+      
+        socket.send(JSON.stringify({ action: "game_won", winner: winner }));
+      
       console.log({ action: "game_won", winner: winner });
     }
   };
