@@ -62,6 +62,19 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
           setShowResetButton(true);
         }, 10000);
       }
+      else if (data.action === "game_won") {
+
+
+
+        setShowWinnerModal(true);
+        setWinner(data.winner);
+        setTimeout(() => {
+
+          setShowWinnerModal(false);
+        }, 5000);
+        
+        console.log({ action: "game_won", winner_section: data.winner });
+    }
       
     };
 

@@ -64,8 +64,7 @@ async def handle_connection(websocket):
                 await delete_all_wins()
             elif data["action"] == "start_automatic":
                 await start_automatic()
-                game_paused = False  # Resume game when user clicks again
-                await start_automatic()
+                
             
 
             
@@ -172,19 +171,23 @@ async def start_automatic():
         await handle_add_card(joker)  # Joker card
         print(f"Joker revealed: {joker}")
         click_count += 1
-        return  # Wait for next button press
+        
 
     # Step 2: Draw the first two cards and PAUSE
-    if click_count == 1:
+    elif click_count == 1:
+        print("first 2 card")
+
         first_card = deck.pop(0)
+        await handle_add_card(first_card)
+        await asyncio.sleep(1.5)
+        
         second_card = deck.pop(0)
 
-        await handle_add_card(first_card)
         await handle_add_card(second_card)
 
         print(f"First two cards revealed: {first_card}, {second_card}")
         click_count += 1
-        return  # Wait for next button press
+        # return  
 
     # Step 3: Continue automatic play until a winner is found
     elif click_count == 2:
@@ -194,12 +197,16 @@ async def start_automatic():
 
             # Stop if there's a winner
             winner = check_win_condition()
+            winner_section = "andar" if winner == 0 else "bahar"
+
             if winner is not None:
-                print(f"Winner identified: {winner}")
+                print(f"Winner identified: {winner_section}")
                 break  # Stop playing once there's a winner
 
-            await asyncio.sleep(1)  # Real-time effect
+            await asyncio.sleep(1.5)  # Real-time effect with 2 seconds interval
 
+        click_count = 0
+        print("resetting click count")
 
 
 players = {

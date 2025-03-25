@@ -68,13 +68,6 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
         // }, 5000);
         
         console.log({ action: "game_won", winner_section: data.winner });
-      
-
-
-      // Auto-hide the modal after 7 seconds
-      // setTimeout(() => {
-      //   setShowWinnerModal(false);
-      // }, 7000);
     }
       else if (data.action === "bets_changed") {
   console.log("Bet Changed in player board", data);
