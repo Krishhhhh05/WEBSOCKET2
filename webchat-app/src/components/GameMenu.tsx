@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import WinnerModal from "@/components/WinnerModal";
 
 const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
   const [cardInput, setCardInput] = useState("");
@@ -8,8 +9,13 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
   const [maxBet, setMaxBet] = useState(10000);
   const [newMinBet, setNewMinBet] = useState(minBet);
   const [newMaxBet, setNewMaxBet] = useState(maxBet);
-  const [joker,setJoker]= useState("");
-
+  const [joker, setJoker] = useState("");
+  const [selectedFace, setSelectedFace] = useState<string | null>(null);
+  const [selectedSuit, setSelectedSuit] = useState<string | null>(null);
+  const [showWinnerModal, setShowWinnerModal] = useState(false);
+  const [winner, setWinner] = useState<string | null>(null);
+  const [mode, setMode] = useState<"manual" | "automatic">("manual");
+  const [auto,setAuto] = useState(false);
   const [players, setPlayers] = useState<{
     player1: boolean;
     player2: boolean;
@@ -33,16 +39,13 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
       const data = JSON.parse(event.data);
       if (data.action === "set_joker") {
         setJoker(data.joker);
-      }
-      else if (data.action === "update_players") {
+      } else if (data.action === "update_players") {
         setPlayers(data.players);
         console.log(data, " for players");
-      }
-      else if (data.action==="bet_changed"){
-        console.log("Bet Changed",data );
+      } else if (data.action === "bet_changed") {
+        console.log("Bet Changed", data);
         setMinBet(data.minBet);
         setMaxBet(data.maxBet);
-        
       }
     };
 
@@ -54,7 +57,7 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
   }, [socket]);
 
   const togglePlayer = (player: "player1" | "player2" | "player3" | "player4" | "player5" | "player6") => {
-    if(joker){
+    if (joker) {
       console.log("cannot add new player");
       return;
     }
@@ -65,18 +68,34 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
   };
 
   const sendCard = () => {
-    if (cardInput && socket) {
-      socket.send(JSON.stringify({ action: "add_card", card: cardInput }));
-      setCardInput("");
-    }
-  };
-  const undoCard = () => {
-    if ( socket) {
-      socket.send(JSON.stringify({ action: "undo_card" }));
-      
+    if (selectedFace && selectedSuit && socket) {
+      socket.send(JSON.stringify({ action: "add_card", card: `${selectedFace}${selectedSuit}` }));
+      setSelectedFace(null);
+      setSelectedSuit(null);
     }
   };
 
+  const undoCard = () => {
+    if (socket) {
+      socket.send(JSON.stringify({ action: "undo_card" }));
+    }
+  };
+  const lastwin = () => {
+    if (socket) {
+      socket.send(JSON.stringify({ action: "delete_win" }));
+    }
+  };
+  const allwins = () => {
+    if (socket) {
+      socket.send(JSON.stringify({ action: "delete_all_wins" }));
+    }
+  };
+  const suits = [
+    { symbol: "♠", value: "S" },
+    { symbol: "♦", value: "D" },
+    { symbol: "♣", value: "C" },
+    { symbol: "♥", value: "H" },
+  ];
 
   const resetGame = () => {
     if (socket) {
@@ -84,7 +103,6 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
       setJoker("");
     }
   };
-
 
   const changeBets = () => {
     if (socket) {
@@ -95,8 +113,42 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
     }
   };
 
+  const handleWinner = (winner: string) => {
+    if(socket){
+    setWinner(winner);
+    setMenuOpen(false);
+    setShowWinnerModal(true);
+    setTimeout(() => {
+
+    setShowWinnerModal(false);
+    },5000);
+    if (winner =="andar"){
+      socket.send(JSON.stringify({ action: "game_won", winner: 0 }));
+    }
+    if (winner =="bahar"){
+      socket.send(JSON.stringify({ action: "game_won", winner: 1 }));
+    }
+      console.log({ action: "game_won", winner: winner });
+  }};
+
+  const startAutomatic = () => {
+    if (socket) {
+   
+      socket.send(JSON.stringify({ action: "start_automatic" }));
+
+    }
+  };
+  const resume = () => {
+    if (socket) {
+   
+      socket.send(JSON.stringify({ action: "resume" }));
+
+    }
+  };
   return (
     <>
+      <WinnerModal show={showWinnerModal} onClose={() => setShowWinnerModal(false)} winner={winner} />
+
       <div className="flex flex-col md:flex-row justify-between w-full h-30 shadow-lg border-2 border-yellow-600 bg-wood-pattern">
         {/* Left Section */}
         <div className="font-questrial p-4 rounded-lg shadow-lg text-left md:w-1/4 w-full relative">
@@ -160,43 +212,162 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
                   <img src="/assets/menu.png" alt="menu" className="h-20" />
                 </button>
                 {menuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-[#8F1504] border border-gray-300 rounded shadow-lg">
-                    <div className="p-2">
-                      <input
-                        type="text"
-                        value={cardInput}
-                        onChange={(e) => setCardInput(e.target.value.toUpperCase())}
-                        placeholder="Enter card (e.g., AS, KD)"
-                        className="border p-2 w-full mb-2 text-black"
-                      />
-                      <button onClick={sendCard} className="bg-blue-500 text-white p-2 w-full mb-2">
-                        Send Card
+
+                  
+                  <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+                    
+                    <div className="bg-gray-200 w-full max-w-4xl rounded-lg p-6 grid grid-cols-3 gap-4">
+                      {/* Close Button */}
+                      <button
+                        onClick={() => setMenuOpen(false)}
+                        className="absolute top-4 right-4 text-black text-2xl font-bold"
+                      >
+                        &times;
                       </button>
-                      <button onClick={resetGame} className="bg-red-500 text-white p-2 w-full mb-2">
-                        Reset Game
-                      </button>
-                      <button onClick={undoCard} className="bg-green-500 text-white p-2 w-full mb-2">
-                        Undo Card
+
+                      {/* Mode Selection */}
+                      <div className="col-span-3 flex justify-center mb-4">
+                        <button
+                          onClick={() => setMode("manual")}
+                          className={`px-4 py-2 rounded-l-lg ${mode === "manual" ? "bg-blue-500 text-white" : "bg-gray-300"}`}
+                        >
+                          Manual
                         </button>
-                      <div className="flex flex-col gap-2">
-                        <input
-                          type="number"
-                          value={newMinBet}
-                          onChange={(e) => setNewMinBet(Number(e.target.value))}
-                          placeholder="Min Bet"
-                          className="border p-2 w-full mb-2 text-black"
-                        />
-                        <input
-                          type="number"
-                          value={newMaxBet}
-                          onChange={(e) => setNewMaxBet(Number(e.target.value))}
-                          placeholder="Max Bet"
-                          className="border p-2 w-full mb-2 text-black"
-                        />
-                        <button onClick={changeBets} className="bg-green-500 text-white p-2 w-full">
-                          Change Bets
+                        <button
+                          onClick={() => setMode("automatic")}
+                          className={`px-4 py-2 rounded-r-lg ${mode === "automatic" ? "bg-blue-500 text-white" : "bg-gray-300"}`}
+                        >
+                          Automatic
                         </button>
                       </div>
+
+                      {mode === "manual" ? (
+                        <>
+                          {/* Left Side: Win Buttons */}
+                          <div className="grid grid-rows-2 gap-4">
+                            <button
+                              onClick={() => handleWinner("andar")}
+                              className="bg-[#C80815] text-white text-2xl font-bold rounded-lg p-6 hover:bg-red-700 transition"
+                            >
+                              ANDAR WINS
+                            </button>
+                            <button
+                              onClick={() => handleWinner("bahar")}
+                              className="bg-[#1C2841] text-white text-2xl font-bold rounded-lg p-6 hover:bg-blue-900 transition"
+                            >
+                              BAHAR WINS
+                            </button>
+                          </div>
+
+                          {/* Middle: Delete and Bet Controls */}
+                          <div className="grid grid-rows-3 gap-4 ">
+                            <div className="grid grid-cols-1 gap-2 ">
+                              <button onClick={undoCard} className="bg-black text-white rounded-lg p-3 hover:bg-gray-800 transition">
+                                DELETE LAST CARD
+                              </button>
+                              <button onClick={lastwin} className="bg-black text-white rounded-lg p-3 hover:bg-gray-800 transition">
+                                DELETE LAST WIN
+                              </button>
+                              <button onClick={allwins} className="bg-black text-white rounded-lg p-3 hover:bg-gray-800 transition">
+                                DELETE ALL WINS
+                              </button>
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-2 ">
+                              <div className="flex items-center justify-between bg-black text-white rounded-lg p-3">
+                                <span>MAX</span>
+                                <input
+                                  type="number"
+                                  value={newMaxBet}
+                                  onChange={(e) => setNewMaxBet(Number(e.target.value))}
+                                  className="bg-transparent text-right w-20 focus:outline-none"
+                                  placeholder="100"
+                                />
+                              </div>
+                              <div className="flex items-center justify-between bg-black text-white rounded-lg p-3">
+                                <span>MIN</span>
+                                <input
+                                  type="number"
+                                  value={newMinBet}
+                                  onChange={(e) => setNewMinBet(Number(e.target.value))}
+                                  className="bg-transparent text-right w-20 focus:outline-none"
+                                  placeholder="100"
+                                />
+                              </div>
+                              <button onClick={changeBets} className="bg-black text-white rounded-lg p-3 hover:bg-gray-800 transition">
+                                CHANGE BETS
+                              </button>
+                              <button onClick={resetGame} className="bg-red-500 text-white p-2 w-full mb-2">
+                                Reset Game
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Right Side: Card Grid and Controls */}
+                          <div>
+                            <div className="grid grid-cols-4 gap-2 mb-4">
+                              {["A", "2", "3", "J", "4", "5", "6", "Q", "7", "8", "9", "K", "T"].map((face) => (
+                                <button
+                                  key={face}
+                                  className={`rounded-lg aspect-square flex items-center justify-center text-2xl font-bold transition ${
+                                    selectedFace === face ? "bg-green-500 text-white" : "bg-black text-white"
+                                  }`}
+                                  onClick={() => setSelectedFace(face)}
+                                >
+                                  {face}
+                                </button>
+                              ))}
+                            </div>
+
+                            {/* Suits */}
+                            <div className="grid grid-cols-4 gap-2 mb-4">
+                              {suits.map((suit) => (
+                                <button
+                                  key={suit.value}
+                                  className={`rounded-lg aspect-square flex items-center justify-center text-3xl font-bold transition ${
+                                    selectedSuit === suit.value ? "bg-yellow-500 text-black" : "bg-gray-800 text-white"
+                                  }`}
+                                  onClick={() => setSelectedSuit(suit.value)}
+                                >
+                                  {suit.symbol}
+                                </button>
+                              ))}
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                onClick={sendCard}
+                                className="bg-green-600 text-white rounded-lg p-3 text-xl hover:bg-green-700 transition"
+                              >
+                                SEND CARD
+                              </button>
+                              <button onClick={undoCard} className="bg-red-600 text-white rounded-lg p-3 text-xl hover:bg-red-700 transition">
+                                UNDO CARD
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="col-span-3 text-center">
+                          <p className="text-xl font-bold">Automatic mode is enabled. Actions will be handled automatically.</p>
+                          <div className="grid grid-rows-3 gap-4 mt-4">
+                            <button
+                              onClick={startAutomatic}
+                              className="bg-blue-500 text-white text-2xl font-bold rounded-lg p-6 hover:bg-blue-700 transition"
+                            >
+                              START AUTOMATIC
+                            </button>
+                           
+                            <button
+                              onClick={resume}
+                              className="bg-blue-500 text-white text-2xl font-bold rounded-lg p-6 hover:bg-blue-700 transition"
+                            >
+                              RESUME
+                            </button>
+                            
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

@@ -3,7 +3,8 @@ import websockets
 import json
 import motor.motor_asyncio
 from datetime import datetime
-
+import random
+import asyncio
 # MongoDB setup
 MONGO_URI = "mongodb://localhost:27017"  # Change this if needed
 DB_NAME = "game_db"
@@ -23,7 +24,9 @@ game_state = {
     "next_section": "bahar",  # First card goes to Bahar, then alternate
 }
 
+    
 async def handle_connection(websocket):
+    global game_paused
     """Handles new player connections."""
     connected_clients.add(websocket)
     print(f"Client connected: {websocket.remote_address}")
@@ -53,7 +56,20 @@ async def handle_connection(websocket):
                 await handle_change_bet(data["minBet"],data["maxBet"])
             elif data["action"] == "undo_card":
                 await undo_card()
+            elif data["action"] =="game_won":
+                await record_win(data["winner"])
+            elif data["action"] == "delete_win":
+                await delete_win()
+            elif data["action"] == "delete_all_wins":
+                await delete_all_wins()
+            elif data["action"] == "start_automatic":
+                await start_automatic()
+                game_paused = False  # Resume game when user clicks again
+                await start_automatic()
+            
 
+            
+ 
     except websockets.ConnectionClosed:
         print(f"Client disconnected: {websocket.remote_address}")
     finally:
@@ -115,16 +131,75 @@ async def undo_card():
     if game_state["next_section"] == "andar":
         if game_state["bahar"]:  # Ensure there's a card to remove
             game_state["bahar"].pop()
+            game_state["next_section"] = "bahar"  # Update next_section
+
+            await broadcast({
+            "action": "update_game",
+            "joker": game_state["joker"],
+            "andar": game_state["andar"],
+            "bahar": game_state["bahar"],
+            "next_section": "bahar"
+            })
+
     else:  # next_section is "bahar"
         if game_state["andar"]:  # Ensure there's a card to remove
             game_state["andar"].pop()
+            game_state["next_section"] == "andar"
+            await broadcast({
+            "action": "update_game",
+            "joker": game_state["joker"],
+            "andar": game_state["andar"],
+            "bahar": game_state["bahar"],
+            "next_section": "andar"
+            })
 
-    await broadcast({
-        "action": "update_game",
-        "joker": game_state["joker"],
-        "andar": game_state["andar"],
-        "bahar": game_state["bahar"],
-    })
+# Deck setup
+ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"]
+suits = ["S", "D", "C", "H"]
+deck = [rank + suit for rank in ranks for suit in suits]
+random.shuffle(deck)
+
+# Track the number of times the "Next" button is clicked
+click_count = 0
+
+async def start_automatic():
+    """Automatically plays the game with pauses after Joker and two initial cards."""
+    global click_count
+
+    # Step 1: Draw the Joker and PAUSE
+    if click_count == 0:
+        joker = deck.pop(0)
+        await handle_add_card(joker)  # Joker card
+        print(f"Joker revealed: {joker}")
+        click_count += 1
+        return  # Wait for next button press
+
+    # Step 2: Draw the first two cards and PAUSE
+    if click_count == 1:
+        first_card = deck.pop(0)
+        second_card = deck.pop(0)
+
+        await handle_add_card(first_card)
+        await handle_add_card(second_card)
+
+        print(f"First two cards revealed: {first_card}, {second_card}")
+        click_count += 1
+        return  # Wait for next button press
+
+    # Step 3: Continue automatic play until a winner is found
+    elif click_count == 2:
+        print("Starting automatic play...")
+        for card in deck:
+            await handle_add_card(card)  # Play one card
+
+            # Stop if there's a winner
+            winner = check_win_condition()
+            if winner is not None:
+                print(f"Winner identified: {winner}")
+                break  # Stop playing once there's a winner
+
+            await asyncio.sleep(1)  # Real-time effect
+
 
 
 players = {
@@ -166,6 +241,26 @@ def check_win_condition():
             return 1  # Bahar wins
 
     return None    
+
+async def delete_win():
+    """Deletes the most recent game win from MongoDB."""
+    last_win = await wins_collection.find_one(sort=[("timestamp", -1)])
+    if last_win:
+        result = await wins_collection.delete_one({"_id": last_win["_id"]})
+        if result.deleted_count > 0:
+            print(f"Deleted last win: {last_win}")
+        else:
+            print("Failed to delete the last win.")
+    else:
+        print("No win records found to delete.")
+
+async def delete_all_wins():
+    """Deletes all game wins from MongoDB."""
+    result = await wins_collection.delete_many({})
+    if result.deleted_count > 0:
+        print(f"Deleted all wins: {result.deleted_count} records")
+    else:
+        print("No win records found to delete.")        
 
 async def record_win(winner_section):
     """Stores the game win in MongoDB."""

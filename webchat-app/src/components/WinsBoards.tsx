@@ -57,6 +57,10 @@ const WinsBoards = ({ socket ,joker}: { socket: WebSocket | null , joker: string
          
         // }, 10000);
       }
+      else if(data.action === "delete_all_wins"){
+        console.log("deleted all wins");
+        window.location.reload();
+      }
     };
 
     socket.addEventListener("message", handleMessage);
