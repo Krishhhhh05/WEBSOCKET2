@@ -10,7 +10,7 @@ export default function WebSocketClient({ pageName }) {
   const [receivedCard, setReceivedCard] = useState("");
 
   useEffect(() => {
-    const ws = new WebSocket("ws://169.254.192.244:6789");
+    const ws = new WebSocket("ws://localhost:6789");
 
     ws.onopen = () => console.log(`✅ Connected to WebSocket as ${pageName}`);
 

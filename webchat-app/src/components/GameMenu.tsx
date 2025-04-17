@@ -18,8 +18,12 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
   const [auto, setAuto] = useState(false);
   const [winner_section, setWinnerSection] = useState("");
   const [showTableModal, setShowTableModal] = useState(false);
-  const [tableNumber, setTableNumber] = useState("1234");  
-  const[table,setTable]=useState<string|null>("1234");  
+  const [tableNumber, setTableNumber] = useState("1234");
+  const [table, setTable] = useState<string | null>("1234");
+  const [showPopup, setShowPopup] = useState(false); // State for popup visibility
+  const [popupMessage, setPopupMessage] = useState(""); // State for popup message
+  const [gamesCount, setGamesCount] = useState(0);
+
   const [players, setPlayers] = useState<{
     player1: boolean;
     player2: boolean;
@@ -54,6 +58,9 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
       else if (data.action === "table_number_set") {
         console.log("Table Number Updated in player board", data);
         setTable(data.tableNumber);  // ✅ Update the state
+      } else if (data.action === "duplicate_card") {
+        console.log("Duplicate Card", data);
+        duplicate();
       }
     };
 
@@ -91,11 +98,29 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
   const lastwin = () => {
     if (socket) {
       socket.send(JSON.stringify({ action: "delete_win" }));
+      console.log("delete last win");
+      setPopupMessage("Last win deleted successfully!"); // Set popup message
+      setShowPopup(true); // Show popup
+      setTimeout(() => setShowPopup(false), 3000); // Hide popup after 3 seconds
+    }
+  };
+  const duplicate = () => {
+    if (socket) {
+      socket.send(JSON.stringify({ action: "duplicate_card" }));
+      console.log("duplicate card");
+      setPopupMessage(`Duplicate card detected!`); // Set popup message
+      setShowPopup(true); // Show popup
+      setTimeout(() => setShowPopup(false), 3000); // Hide popup after 3 seconds
     }
   };
   const allwins = () => {
     if (socket) {
       socket.send(JSON.stringify({ action: "delete_all_wins" }));
+      console.log("delete all wins");
+      setGamesCount(0);
+      setPopupMessage("All wins deleted successfully!"); // Set popup message
+      setShowPopup(true); // Show popup
+      setTimeout(() => setShowPopup(false), 3000); // Hide popup after 3 seconds
     }
   };
   const suits = [
@@ -118,6 +143,9 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
       console.log({ action: "bet_changed", minBet: newMinBet, maxBet: newMaxBet });
       setMinBet(newMinBet);
       setMaxBet(newMaxBet);
+      setPopupMessage("Bets changed successfully!"); // Set popup message
+      setShowPopup(true); // Show popup
+      setTimeout(() => setShowPopup(false), 3000); // Hide popup after 3 seconds
     }
   };
   const sendTableNumber = () => {
@@ -136,11 +164,12 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
 
         setShowWinnerModal(false);
       }, 5000);
-      
-      
-      
-        socket.send(JSON.stringify({ action: "game_won", winner: winner , winner_section:winner_section}));
-      
+
+
+
+      socket.send(JSON.stringify({ action: "game_won", winner: winner, winner_section: winner_section }));
+      setGamesCount(prev => prev + 1);
+
       console.log({ action: "game_won", winner: winner });
     }
   };
@@ -166,7 +195,7 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
             <div className="flex justify-center items-center">
               <img src="/assets/logo.png" alt="logo" className="h-14" />
             </div>
-            <div className="text-xl text-center text-yellow-300">Table FT{tableNumber }</div>
+            <div className="text-xl text-center text-yellow-300">Table FT{tableNumber}</div>
           </div>
         </div>
 
@@ -224,7 +253,7 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
 
                   <div className="fixed inset-0 left-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4 w-full">
 
-                    <div className="bg-gray-200 w-full max-w-4xl rounded-lg p-6 grid grid-cols-3 gap-4">
+                    <div className=" relative bg-gray-200 w-full max-w-4xl rounded-lg p-6 grid grid-cols-3 gap-4">
                       {/* Close Button */}
                       <button
                         onClick={() => setMenuOpen(false)}
@@ -232,10 +261,14 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
                       >
                         &times;
                       </button>
-
+                      {showPopup && (
+                        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+                          {popupMessage}
+                        </div>
+                      )}
                       {/* Mode Selection */}
                       <div className="col-span-3 flex justify-center mb-4">
-                      <button
+                        <button
                           onClick={() => setMode("live")}
                           className={`px-4 py-2 rounded-l-lg ${mode === "live" ? "bg-blue-500 text-white" : "bg-gray-300"}`}
                         >
@@ -253,77 +286,80 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
                         >
                           Automatic
                         </button>
-                        
+
                       </div>
 
-                      {(mode === "automatic"   ) ? (
-                       
+                      {(mode === "automatic") ? (
+
                         <div className="col-span-3 text-center">
-                        <p className="text-xl font-bold">Automatic mode is enabled. Actions will be handled automatically.</p>
-                        <div className="grid grid-rows-3 gap-4 mt-4">
-                          <button
-                            onClick={startAutomatic}
-                            className="bg-blue-500 text-white text-2xl font-bold rounded-lg p-6 hover:bg-blue-700 transition"
-                          >
-                            START AUTOMATIC
-                          </button>
+                          <p className="text-xl font-bold">Automatic mode is enabled. Actions will be handled automatically.</p>
+                          <div className="grid grid-rows-3 gap-4 mt-4">
+                            <button
+                              onClick={startAutomatic}
+                              className="bg-blue-500 text-white text-2xl font-bold rounded-lg p-6 hover:bg-blue-700 transition"
+                            >
+                              START AUTOMATIC
+                            </button>
 
-                         
 
+
+                          </div>
                         </div>
-                      </div>
                       ) : (
                         <>
-                        {/* Left Side: Win Buttons */}
-                        <div className="gap-4">
-                          <button
-                            onClick={() => handleWinner(0)}
-                            className="bg-[#C80815] h-1/3 text-white text-2xl font-bold rounded-lg p-6 hover:bg-red-700 transition mb-1"
-                          >
-                            ANDAR WINS
-                          </button>
-                          <button
-                            onClick={() => handleWinner(1)}
-                            className="bg-[#1C2841] h-1/3 text-white text-2xl font-bold rounded-lg p-6 hover:bg-blue-900 transition"
-                          >
-                            BAHAR WINS
-                          </button>
-                        </div>
-
-                        {/* Middle: Delete and Bet Controls */}
-                        <div className="grid grid-rows-3 gap-4 ">
-                        <div className="grid grid-cols-1 gap-2 ">
-                            <div className="flex items-center justify-between bg-black text-white rounded-lg p-3">
-                              <span>MAX</span>
-
-                              <input
-                                type="number"
-                                value={newMaxBet}
-                                onChange={(e) => setNewMaxBet(Number(e.target.value))}
-                                className="bg-transparent text-right w-20  focus:outline-none"
-                                placeholder="100"
-                                inputMode="numeric"  // Ensures mobile devices show only a numeric keypad
-                                pattern="[0-9]*"  // Restricts input to numbers only
-                              />
-
-                            </div>
-                            <div className="flex items-center justify-between bg-black text-white rounded-lg p-3">
-                              <span>MIN</span>
-                              <input
-                                type="number"
-                                value={newMinBet}
-                                onChange={(e) => setNewMinBet(Number(e.target.value))}
-                                className="bg-transparent text-right w-20 focus:outline-none"
-                                placeholder="100"
-                                inputMode="numeric"  // Ensures mobile devices show only a numeric keypad
-                                pattern="[0-9]*"  // Restricts input to numbers only
-                              />
-
-                            </div>
-                            <button onClick={changeBets} className="bg-black text-white rounded-lg p-3 hover:bg-gray-800 transition">
-                              CHANGE BETS
+                          {/* Left Side: Win Buttons */}
+                          <div className="gap-4">
+                            <button
+                              onClick={() => handleWinner(0)}
+                              className="bg-[#C80815] h-1/3 text-white text-2xl font-bold rounded-lg p-6 hover:bg-red-700 transition mb-1"
+                            >
+                              ANDAR WINS
                             </button>
                             <button
+                              onClick={() => handleWinner(1)}
+                              className="bg-[#1C2841] h-1/3 text-white text-2xl font-bold rounded-lg p-6 hover:bg-blue-900 transition"
+                            >
+                              BAHAR WINS
+                            </button>
+                            <div className="bg-yellow-500 w-3/4 mt-4 text-white text-xl font-normal rounded-lg p-6  transition"> Game count : {gamesCount}</div>
+
+                          </div>
+
+                          {/* Middle: Delete and Bet Controls */}
+                          <div className="grid grid-rows-3 gap-4 ">
+
+                            <div className="grid grid-cols-1 gap-2 ">
+                              <div className="flex items-center justify-between bg-black text-white rounded-lg p-3">
+                                <span>MAX</span>
+
+                                <input
+                                  type="number"
+                                  value={newMaxBet}
+                                  onChange={(e) => setNewMaxBet(Number(e.target.value))}
+                                  className="bg-transparent text-right w-20  focus:outline-none"
+                                  placeholder="100"
+                                  inputMode="numeric"  // Ensures mobile devices show only a numeric keypad
+                                  pattern="[0-9]*"  // Restricts input to numbers only
+                                />
+
+                              </div>
+                              <div className="flex items-center justify-between bg-black text-white rounded-lg p-3">
+                                <span>MIN</span>
+                                <input
+                                  type="number"
+                                  value={newMinBet}
+                                  onChange={(e) => setNewMinBet(Number(e.target.value))}
+                                  className="bg-transparent text-right w-20 focus:outline-none"
+                                  placeholder="100"
+                                  inputMode="numeric"  // Ensures mobile devices show only a numeric keypad
+                                  pattern="[0-9]*"  // Restricts input to numbers only
+                                />
+
+                              </div>
+                              <button onClick={changeBets} className="bg-black text-white rounded-lg p-3 hover:bg-gray-800 transition">
+                                CHANGE BETS
+                              </button>
+                              <button
                                 onClick={() => setShowTableModal(true)}
                                 className="bg-black text-white rounded-lg p-3 hover:bg-gray-800 transition"
                               >
@@ -363,67 +399,67 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
                                   </div>
                                 </div>
                               )}
-                            <button onClick={resetGame} className="bg-red-500 text-white p-2 w-full mb-2">
-                              Reset Game
-                            </button>
-                          </div>
-                          <div className="grid grid-cols-1 gap-2 ">
-                            {/* <button onClick={undoCard} className="bg-black text-white rounded-lg p-3 hover:bg-gray-800 transition">
+                              <button onClick={resetGame} className="bg-red-500 text-white px-4 py-2 w-full mb-2 rounded-lg">
+                                Reset Game
+                              </button>
+                            </div>
+                            <div className="grid grid-cols-1 gap-2 ">
+                              {/* <button onClick={undoCard} className="bg-black text-white rounded-lg p-3 hover:bg-gray-800 transition">
                               DELETE LAST CARD
                             </button> */}
-                            <button onClick={lastwin} className="bg-black text-white rounded-lg p-3 hover:bg-gray-800 transition">
-                              DELETE LAST WIN
-                            </button>
-                            <button onClick={allwins} className="bg-black text-white rounded-lg p-3 hover:bg-gray-800 transition">
-                              DELETE ALL WINS
-                            </button>
-                          </div>
-
-                          
-                        </div>
-
-                        {/* Right Side: Card Grid and Controls */}
-                        <div>
-                          <div className="grid grid-cols-4 gap-2 mb-4">
-                            {["A", "2", "3", "J", "4", "5", "6", "Q", "7", "8", "9", "K", "T"].map((face) => (
-                              <button
-                                key={face}
-                                className={`rounded-lg aspect-square flex items-center justify-center text-2xl font-bold transition p-2 ${selectedFace === face ? "bg-green-500 text-white" : "bg-black text-white"
-                                  }`}
-                                onClick={() => setSelectedFace(face)}
-                              >
-                                {face}
+                              <button onClick={lastwin} className="bg-black text-white rounded-lg p-3 hover:bg-gray-800 transition">
+                                DELETE LAST WIN
                               </button>
-                            ))}
-                          </div>
-
-                          {/* Suits */}
-                          <div className="grid grid-cols-4 gap-2 mb-4">
-                            {suits.map((suit) => (
-                              <button
-                                key={suit.value}
-                                className={`rounded-lg aspect-square flex items-center justify-center text-3xl font-bold transition p-2 ${selectedSuit === suit.value ? "bg-yellow-500 text-black " : "bg-white-800 text-white"
-                                  }`}
-                                onClick={() => setSelectedSuit(suit.value)}
-                              >
-                                {suit.symbol}
+                              <button onClick={allwins} className="bg-black text-white rounded-lg p-3 hover:bg-gray-800 transition">
+                                DELETE ALL WINS
                               </button>
-                            ))}
+                            </div>
+
+
                           </div>
 
-                          <div className="grid grid-cols-2 gap-2">
-                            <button
-                              onClick={sendCard}
-                              className="bg-green-600 text-white rounded-lg p-3 text-xl hover:bg-green-700 transition"
-                            >
-                              SEND CARD
-                            </button>
-                            <button onClick={undoCard} className="bg-red-600 text-white rounded-lg p-3 text-xl hover:bg-red-700 transition">
-                              UNDO CARD
-                            </button>
+                          {/* Right Side: Card Grid and Controls */}
+                          <div>
+                            <div className="grid grid-cols-4 gap-2 mb-4">
+                              {["A", "2", "3", "J", "4", "5", "6", "Q", "7", "8", "9", "K", "T"].map((face) => (
+                                <button
+                                  key={face}
+                                  className={`rounded-lg aspect-square flex items-center justify-center text-2xl font-bold transition p-2 ${selectedFace === face ? "bg-green-500 text-white" : "bg-black text-white"
+                                    }`}
+                                  onClick={() => setSelectedFace(face)}
+                                >
+                                  {face}
+                                </button>
+                              ))}
+                            </div>
+
+                            {/* Suits */}
+                            <div className="grid grid-cols-4 gap-2 mb-4">
+                              {suits.map((suit) => (
+                                <button
+                                  key={suit.value}
+                                  className={`rounded-lg  aspect-square flex items-center justify-center text-3xl font-bold transition p-2 ${selectedSuit === suit.value ? "bg-yellow-500 text-black " : "bg-white-800 text-white"
+                                    }`}
+                                  onClick={() => setSelectedSuit(suit.value)}
+                                >
+                                  {suit.symbol}
+                                </button>
+                              ))}
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                onClick={sendCard}
+                                className="bg-green-600 text-white rounded-lg p-3 text-xl hover:bg-green-700 transition"
+                              >
+                                SEND CARD
+                              </button>
+                              <button onClick={undoCard} className="bg-red-600 text-white rounded-lg p-3 text-xl hover:bg-red-700 transition">
+                                UNDO CARD
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      </>
+                        </>
                       )}
                     </div>
                   </div>

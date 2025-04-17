@@ -6,11 +6,11 @@ from datetime import datetime
 import random
 import asyncio
 
-import serial
+# import serial
 import time
 import urllib.parse
 import re
-ser = serial.Serial("COM1", 9600, timeout=0.1)  # Adjust baud rate if necessary
+# ser = serial.Serial("COM1", 9600, timeout=0.1)  # Adjust baud rate if necessary
 
 # MongoDB setup
 MONGO_URI = "mongodb://localhost:27017"  # Change this if needed
@@ -71,6 +71,9 @@ async def handle_connection(websocket):
                 await delete_all_wins()
             elif data["action"] == "start_automatic":
                 await start_automatic()
+            elif data["action"] == "table_number_set":
+                print("table number")
+                await handle_table_number(data["tableNumber"])
                 
             
 
@@ -84,6 +87,12 @@ async def handle_connection(websocket):
 async def handle_add_card(card):
     """Handles adding a card to the game."""
     global game_state
+
+    if card in game_state["andar"] or card in game_state["bahar"]:
+        # Broadcast duplicate card action
+        await broadcast({"action": "duplicate_card", "card": card})
+        print(f"Duplicate card detected: {card}")
+        return  # Exit the function without adding the card
 
     if game_state["joker"] is None:
         game_state["joker"] = card  # First card is Joker
@@ -266,18 +275,25 @@ async def delete_win():
         result = await wins_collection.delete_one({"_id": last_win["_id"]})
         if result.deleted_count > 0:
             print(f"Deleted last win: {last_win}")
+            update = {"action": "delete_win"}
+            await broadcast(update)
         else:
             print("Failed to delete the last win.")
     else:
         print("No win records found to delete.")
+    
+
 
 async def delete_all_wins():
     """Deletes all game wins from MongoDB."""
     result = await wins_collection.delete_many({})
     if result.deleted_count > 0:
         print(f"Deleted all wins: {result.deleted_count} records")
+        update = {"action": "delete_all_wins"}
+        await broadcast(update)
     else:
-        print("No win records found to delete.")        
+        print("No win records found to delete.")    
+            
 
 async def record_win(winner):
     """Stores the game win in MongoDB."""
@@ -302,6 +318,18 @@ async def handle_change_bet(minBet,maxBet):
     await broadcast(bets)
     print(f"New bets: {bets}")
 
+async def handle_table_number(table_number):
+    """Broadcasts the table number change."""
+    print("in function table")
+    table_info = {
+        "action": "table_number_set",
+        "tableNumber": table_number
+    }
+    
+    await broadcast(table_info)
+    print(f"New table number: {table_info}")
+
+
 async def broadcast(message):
     """Sends a message to all connected clients."""
     if connected_clients:
@@ -317,25 +345,33 @@ def extract_card_value(input_string):
     match = re.search(r"<Card:(.*?)>", input_string)
     return match.group(1) if match else None
 
-async def read_from_serial():
-    """Continuously reads card values from the casino shoe reader and adds them to the game."""
-    while True:
-        if ser.in_waiting > 0:
-            raw_data = ser.readline().decode("utf-8").strip()
-            card = extract_card_value(raw_data)
-            print ("card:",card)
-            if card:
-                await handle_add_card(card)
-        await asyncio.sleep(0.1)  # Adjust delay if necessary
+# async def read_from_serial():
+#     """Continuously reads card values from the casino shoe reader and adds them to the game."""
+#     while True:
+#         if ser.in_waiting > 0:
+#             raw_data = ser.readline().decode("utf-8").strip()
+#             card = extract_card_value(raw_data)
+#             print ("card:",card)
+#             if card:
+#                 await handle_add_card(card)
+#         await asyncio.sleep(0.1)  # Adjust delay if necessary
 
+# async def main():
+#     print("Connected to:", ser.name)
+#     """Starts the WebSocket server and serial reader."""
+#     server = websockets.serve(handle_connection, "0.0.0.0", 6789)
+#     print("WebSocket server running on ws://localhost:6789")
+
+#     await asyncio.gather(server, read_from_serial())  # Run both tasks concurrently
+
+
+# if __name__ == "__main__":
+#     asyncio.run(main())
 async def main():
-    print("Connected to:", ser.name)
-    """Starts the WebSocket server and serial reader."""
-    server = websockets.serve(handle_connection, "0.0.0.0", 6789)
-    print("WebSocket server running on ws://169.254.192.244:6789")
-
-    await asyncio.gather(server, read_from_serial())  # Run both tasks concurrently
-
+    """Starts the WebSocket server."""
+    async with websockets.serve(handle_connection, "localhost", 6789):
+        print("WebSocket server running on ws://localhost:6789")
+        await asyncio.Future()
 
 if __name__ == "__main__":
     asyncio.run(main())
