@@ -224,7 +224,7 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
               >
                 <div className="flex items-center space-x-2">
                   <div className="w-12 h-12 overflow-clip">
-                    <img src="/assets/a.png" alt="a" className="w-16" />
+                    <img src="/assets/blue_a.png" alt="a" className="w-16" />
                   </div>
                   <span className="text-black text-5xl">
                     {andar.length}
@@ -239,7 +239,7 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
               >
                 <div className="flex items-center space-x-2">
                   <div className="w-12 h-16 pt-1 overflow-clip">
-                    <img src="/assets/b.png" alt="b" className="w-16" />
+                    <img src="/assets/red_b.png" alt="b" className="w-16" />
                   </div>
                   <span className="text-black text-5xl">
                     {bahar.length}

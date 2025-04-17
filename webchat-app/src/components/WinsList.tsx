@@ -305,7 +305,7 @@ const WinsList = () => {
               <div className="p-4 col-span-2 shadow-lg text-left relative border-2 border-yellow-400">
                 <h2 className="text-yellow-400 text-4xl font-ramaraja font-bold text-center mb-4">STATISTICS</h2>
                 <div className="flex items-center gap-2">
-                  <img src="/assets/a.png" className="w-16 h-16" />
+                  <img src="/assets/blue_a.png" className="w-16 h-16" />
                   <div className="flex-1 h-8 relative">
                     <div className="absolute inset-0 flex">
                       {/* Andar Bar */}
@@ -324,7 +324,7 @@ const WinsList = () => {
                       </div>
                     </div>
                   </div>
-                  <img src="/assets/b.png" className="w-16 h-16" />
+                  <img src="/assets/red_b.png" className="w-16 h-16" />
                 </div>
               </div>
 
