@@ -45,7 +45,7 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
         setBahar([]);
         setSectionId(1);
         setGameOver(() => false); // Reset game state properly
-        setShowWinnerModal(false); // Hide modal on reset
+        // setShowWinnerModal(false); // Hide modal on reset
       } else if (data.action === "update_players") {
         console.log(data.players, "players");
       }
@@ -54,12 +54,12 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
         setGameOver(() => true);
         console.log("Game Over",gameOver); 
         console.log("Winner:", data.winner);
-        // setShowWinnerModal(true);
+        setShowWinnerModal(true);
 
-        // Auto-hide the modal after 7 seconds
+        // Auto-hide the modal after 5 seconds
         setTimeout(() => {
           setShowWinnerModal(false);
-          setShowResetButton(true);
+          // setShowResetButton(true);
         }, 5000);
       }
       else if (data.action === "game_won") {
@@ -71,6 +71,7 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
         setTimeout(() => {
 
           setShowWinnerModal(false);
+          resetGame();
         }, 5000);
         
         console.log({ action: "game_won", winner_section: data.winner });
@@ -88,20 +89,39 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
     if (socket) {
       socket.send(JSON.stringify({ action: "reset_game" }));
 
-      setShowResetButton(false);
+      // setShowResetButton(false);
       setGameOver(false);
     }
   };
-  const noResetGame = () => {
 
-    setShowResetButton(false);
+  const handleWinner = (winner: number) => {
+    if (socket) {
+      setWinner(winner);
+      // setMenuOpen(false);
+      setShowWinnerModal(true);
+      setTimeout(() => {
 
-  };
+        setShowWinnerModal(false);
+      }, 5000);
+
+
+
+      socket.send(JSON.stringify({ action: "game_won", winner: winner }));
+      // setGamesCount(prev => prev + 1);
+
+      console.log({ action: "game_won", winner: winner });
+    }
+  }
+  // const noResetGame = () => {
+
+  //   setShowResetButton(false);
+
+  // };
 
   return (
     <div className="flex flex-col items-center   bg-[#8F1504]  w-full">
       <WinnerModal show={showWinnerModal} onClose={() => setShowWinnerModal(false)} winner={winner} />
-      {showResetButton && (
+      {/* {showResetButton && (
         <div className="flex z-50 items-center justify-center h-full w-full absolute">
           <div className="bg-white p-4 rounded-lg shadow-lg text-2xl font-bold text-black">
             <p>Are you sure you want to reset the game?</p>
@@ -122,7 +142,7 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
           </div>
 
         </div>
-      )}
+      )} */}
       <div className=" grid grid-cols-3 grid-rows-2 w-full border-4 border-yellow-600 h-[42rem]">
         <div className="col-span-2 row-span-1 flex relative  justify-between p-4   bg-[#8F1504] h-[18rem] " >
           <div className="text-yellow-600 font-ramaraja text-6xl mt-10 font-bold mr-4">
@@ -211,6 +231,8 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
                   </span>
                 </div>
               </div>
+           
+
               <div
                 className={`flex justify-between items-center p-5 h-[7rem] ${sectionId === 1 ? "bg-[#07740C]" : "bg-[#FFF8D6] z-50"
                   } text-black text-2xl font-bold`}
@@ -224,6 +246,20 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
                   </span>
                 </div>
               </div>
+              <div className="flex justify-between mt-4 px-2">
+  <button
+    onClick={() => handleWinner(0)}
+    className="bg-red-700 text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-green-800"
+  >
+    Andar Wins
+  </button>
+  <button
+    onClick={() => handleWinner(1)}
+    className="bg-blue-700 text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-800"
+  >
+    Bahar Wins
+  </button>
+</div>
             </div>
           </div>
 

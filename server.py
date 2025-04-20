@@ -71,6 +71,9 @@ async def handle_connection(websocket):
                 await delete_all_wins()
             elif data["action"] == "start_automatic":
                 await start_automatic()
+            elif data["action"] == "table_number_set":
+                print("table number")
+                await handle_table_number(data["tableNumber"])
                 
             
 
@@ -84,6 +87,12 @@ async def handle_connection(websocket):
 async def handle_add_card(card):
     """Handles adding a card to the game."""
     global game_state
+
+    if card in game_state["andar"] or card in game_state["bahar"]:
+        # Broadcast duplicate card action
+        await broadcast({"action": "duplicate_card", "card": card})
+        print(f"Duplicate card detected: {card}")
+        return  # Exit the function without adding the card
 
     if game_state["joker"] is None:
         game_state["joker"] = card  # First card is Joker
@@ -266,18 +275,25 @@ async def delete_win():
         result = await wins_collection.delete_one({"_id": last_win["_id"]})
         if result.deleted_count > 0:
             print(f"Deleted last win: {last_win}")
+            update = {"action": "delete_win"}
+            await broadcast(update)
         else:
             print("Failed to delete the last win.")
     else:
         print("No win records found to delete.")
+    
+
 
 async def delete_all_wins():
     """Deletes all game wins from MongoDB."""
     result = await wins_collection.delete_many({})
     if result.deleted_count > 0:
         print(f"Deleted all wins: {result.deleted_count} records")
+        update = {"action": "delete_all_wins"}
+        await broadcast(update)
     else:
-        print("No win records found to delete.")        
+        print("No win records found to delete.")    
+            
 
 async def record_win(winner):
     """Stores the game win in MongoDB."""
@@ -301,6 +317,18 @@ async def handle_change_bet(minBet,maxBet):
     
     await broadcast(bets)
     print(f"New bets: {bets}")
+
+async def handle_table_number(table_number):
+    """Broadcasts the table number change."""
+    print("in function table")
+    table_info = {
+        "action": "table_number_set",
+        "tableNumber": table_number
+    }
+    
+    await broadcast(table_info)
+    print(f"New table number: {table_info}")
+
 
 async def broadcast(message):
     """Sends a message to all connected clients."""
@@ -339,3 +367,11 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+# async def main():
+#     """Starts the WebSocket server."""
+#     async with websockets.serve(handle_connection, "localhost", 6789):
+#         print("WebSocket server running on ws://localhost:6789")
+#         await asyncio.Future()
+
+# if __name__ == "__main__":
+#     asyncio.run(main())
