@@ -22,6 +22,7 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
   const [showPopup, setShowPopup] = useState(false); // State for popup visibility
   const [popupMessage, setPopupMessage] = useState(""); // State for popup message
   const [gamesCount, setGamesCount] = useState(0);
+  const [clickCount, setClickCount] = useState(0);
 
   const [players, setPlayers] = useState<{
     player1: boolean;
@@ -139,6 +140,7 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
     if (socket) {
       socket.send(JSON.stringify({ action: "reset_game" }));
       setJoker(null);
+      setClickCount(0);
     }
   };
 
@@ -168,6 +170,7 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
       setTimeout(() => {
 
         setShowWinnerModal(false);
+        setMenuOpen(!menuOpen)
       }, 5000);
 
 
@@ -180,10 +183,28 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
   };
 
   const startAutomatic = () => {
+    const newCount = clickCount + 1;
     if (socket) {
 
       socket.send(JSON.stringify({ action: "start_automatic" }));
 
+    }
+   
+    if (newCount >= 3) {
+      setMenuOpen(false);
+      setClickCount(0); // Reset counter after popup closes
+    } else {
+      setClickCount(newCount);
+    }
+  };
+
+  const handleButtonClick = () => {
+    const newCount = clickCount + 1;
+    if (newCount >= 3) {
+      setMenuOpen(false);
+      setClickCount(0); // Reset counter after popup closes
+    } else {
+      setClickCount(newCount);
     }
   };
 

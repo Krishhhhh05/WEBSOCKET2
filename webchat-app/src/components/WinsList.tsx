@@ -23,7 +23,7 @@ const WinsList = () => {
   const [winner, setWinner] = useState<number | null>(null);
   // Big Road grouping logic
   useEffect(() => {
-    const maxRows = 6;
+    const maxRows = 4;
     const newGroupedWins: WinRecord[][] = [];
     const orderedWins = [...wins].reverse(); // oldest to newest
 
@@ -80,7 +80,7 @@ const WinsList = () => {
 
   // Bead Plate logic
   useEffect(() => {
-    const maxRows = 6;
+    const maxRows = 4;
     const newBeadPlateGrid: number[][] = [];
     let col = 0;
     let row = 0;
