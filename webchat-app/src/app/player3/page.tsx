@@ -7,7 +7,7 @@ const Player3Page = () => {
   const [player3Active, setPlayer3Active] = useState(false);
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:6789");
+    const ws = new WebSocket("ws://169.254.192.244:6789");
     console.log(" Connected for Player 3");
 
     ws.onopen = () => {

@@ -16,7 +16,6 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
   const [winner, setWinner] = useState<number | null>(null);
   const [mode, setMode] = useState<"manual" | "automatic" | "live">("manual");
   const [auto, setAuto] = useState(false);
-  const [winner_section, setWinnerSection] = useState("");
   const [showTableModal, setShowTableModal] = useState(false);
   const [tableNumber, setTableNumber] = useState("1234");
   const [table, setTable] = useState<string | null>("1234");
@@ -61,6 +60,12 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
       } else if (data.action === "duplicate_card") {
         console.log("Duplicate Card", data);
         duplicate();
+      }
+      else if (data.action === "game_won") {
+        console.log("game won, calling reset function", data);
+        setTimeout(()=> {
+          resetGame();
+        }, 5000);
       }
     };
 
@@ -167,7 +172,7 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
 
 
 
-      socket.send(JSON.stringify({ action: "game_won", winner: winner, winner_section: winner_section }));
+      socket.send(JSON.stringify({ action: "game_won", winner: winner}));
       setGamesCount(prev => prev + 1);
 
       console.log({ action: "game_won", winner: winner });
@@ -311,17 +316,17 @@ const GameMenu = ({ socket }: { socket: WebSocket | null }) => {
                           <div className="gap-4">
                             <button
                               onClick={() => handleWinner(0)}
-                              className="bg-[#C80815] h-1/3 text-white text-2xl font-bold rounded-lg p-6 hover:bg-red-700 transition mb-1"
+                              className="bg-blue-700 h-1/3 text-white text-2xl font-bold rounded-lg p-6 hover:bg-blue-700 transition mb-1"
                             >
                               ANDAR WINS
                             </button>
                             <button
                               onClick={() => handleWinner(1)}
-                              className="bg-[#1C2841] h-1/3 text-white text-2xl font-bold rounded-lg p-6 hover:bg-blue-900 transition"
+                              className="bg-red-500 h-1/3 text-white text-2xl font-bold rounded-lg p-6 hover:bg-red-500 transition"
                             >
                               BAHAR WINS
                             </button>
-                            <div className="bg-yellow-500 w-3/4 mt-4 text-white text-xl font-normal rounded-lg p-6  transition"> Game count : {gamesCount}</div>
+                            {/* <div className="bg-yellow-500 w-3/4 mt-4 text-white text-xl font-normal rounded-lg p-6  transition"> Game count : {gamesCount}</div> */}
 
                           </div>
 

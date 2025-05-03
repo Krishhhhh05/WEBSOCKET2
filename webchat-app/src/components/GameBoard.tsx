@@ -74,7 +74,7 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
           resetGame();
         }, 5000);
         
-        console.log({ action: "game_won", winner_section: data.winner });
+        console.log({ action: "game_won", winner: data.winner });
     }
       
     };
@@ -224,7 +224,7 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
               >
                 <div className="flex items-center space-x-2">
                   <div className="w-12 h-12 overflow-clip">
-                    <img src="/assets/a.png" alt="a" className="w-16" />
+                    <img src="/assets/blue_a.png" alt="a" className="w-16" />
                   </div>
                   <span className="text-black text-5xl">
                     {andar.length}
@@ -239,7 +239,7 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
               >
                 <div className="flex items-center space-x-2">
                   <div className="w-12 h-16 pt-1 overflow-clip">
-                    <img src="/assets/b.png" alt="b" className="w-16" />
+                    <img src="/assets/red_b.png" alt="b" className="w-16" />
                   </div>
                   <span className="text-black text-5xl">
                     {bahar.length}
@@ -249,13 +249,13 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
               <div className="flex justify-between mt-4 px-2">
   <button
     onClick={() => handleWinner(0)}
-    className="bg-red-700 text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-green-800"
+    className="bg-blue-700 text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-800"
   >
     Andar Wins
   </button>
   <button
     onClick={() => handleWinner(1)}
-    className="bg-blue-700 text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-800"
+    className="bg-red-700 text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-red-800"
   >
     Bahar Wins
   </button>

@@ -303,14 +303,14 @@ return (
         <div className="flex items-center justify-between gap-1">
           {/* Andar Circle */}
           <div className="w-8 h-8">
-            <img src="/assets/a.png" alt="Andar Wins" className="w-full h-full" />
+            <img src="/assets/blue_a.png" alt="Andar Wins" className="w-full h-full" />
           </div>
 
           {/* Progress Bar */}
           <div className="flex-1 h-8 relative">
             <div className="absolute inset-0 flex">
               <div
-                className="h-full bg-red-600 rounded-l-full"
+                className="h-full bg-blue-600 rounded-l-full"
                 style={{ width: `${andarPercentage}%` }}
               >
                 <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white font-bold">
@@ -319,7 +319,7 @@ return (
                 </span>
               </div>
               <div
-                className="h-full bg-blue-600 rounded-r-full"
+                className="h-full bg-red-600 rounded-r-full"
                 style={{ width: `${baharPercentage}%` }}
               >
                 <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white font-bold">
@@ -332,7 +332,7 @@ return (
 
           {/* Bahar Circle */}
           <div className="w-8 h-8">
-            <img src="/assets/b.png" alt="Bahar" className="w-full h-full" />
+            <img src="/assets/red_b.png" alt="Bahar" className="w-full h-full" />
           </div>
         </div>
 
@@ -344,12 +344,12 @@ return (
         <img src="/assets/screw.png" alt="screw" className="absolute top-2 right-2 w-6 h-6" />
         <div className="flex justify-around items-center">
           <div className="flex flex-col items-center">
-            <img src="/assets/a.png" alt="Andar Wins" className="w-10 h-10" />
+            <img src="/assets/blue_a.png" alt="Andar Wins" className="w-10 h-10" />
             <span className="text-xl text-yellow-400 font-bold font-ramaraja ">Andar</span>
           </div>
 
           <div className="flex flex-col items-center">
-            <img src="/assets/b.png" alt="Bahar Wins" className="w-10 h-10" />
+            <img src="/assets/red_b.png" alt="Bahar Wins" className="w-10 h-10" />
             <span className="text-xl text-yellow-400 font-bold font-ramaraja">Bahar</span>
           </div>
 
