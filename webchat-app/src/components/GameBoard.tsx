@@ -74,7 +74,7 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
           resetGame();
         }, 5000);
         
-        console.log({ action: "game_won", winner_section: data.winner });
+        console.log({ action: "game_won", winner: data.winner });
     }
       
     };
@@ -249,13 +249,13 @@ const GameBoard = ({ socket }: { socket: WebSocket | null }) => {
               <div className="flex justify-between mt-4 px-2">
   <button
     onClick={() => handleWinner(0)}
-    className="bg-red-700 text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-green-800"
+    className="bg-blue-700 text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-800"
   >
     Andar Wins
   </button>
   <button
     onClick={() => handleWinner(1)}
-    className="bg-blue-700 text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-800"
+    className="bg-red-700 text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-red-800"
   >
     Bahar Wins
   </button>

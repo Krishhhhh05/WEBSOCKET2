@@ -32,8 +32,8 @@ const Header = ({ socket, table }: { socket: WebSocket | null; table: string | n
         alt="logo"
         className="absolute left-1/2 z-20 transform -translate-x-1/2 h-40"
       />
-      <div className="text-3xl font-ramaraja text-yellow-300 text-center">
-        Table <br />
+      <div className="text-6xl font-ramaraja text-yellow-300 text-center">
+        TABLE NUMBER <br />
         FT{tableNumber ?? "Waiting..."} {/* Show table number or default text */}
       </div>
     </div>

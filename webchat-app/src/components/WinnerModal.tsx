@@ -12,17 +12,17 @@ const WinnerModal = ({ show, onClose, winner }: { show: boolean; onClose: () => 
 
       // Play the audio when modal opens
       const audio = new Audio("/assets/winner-sound.mp3");
-      audio.play();
+      // audio.play();
 
       // Hide the modal after 7 seconds
       const timer = setTimeout(() => {
         onClose();
-      }, 700000);
+      }, 5000);
 
       // Stop confetti after 5 seconds
       const confettiTimer = setTimeout(() => {
         setShowConfetti(false);
-      }, 500000);
+      }, 5000);
 
       return () => {
         clearTimeout(timer);

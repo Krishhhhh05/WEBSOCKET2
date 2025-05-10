@@ -74,6 +74,9 @@ async def handle_connection(websocket):
             elif data["action"] == "table_number_set":
                 print("table number")
                 await handle_table_number(data["tableNumber"])
+            elif data["action"] == "table_number_set":
+                print("table number")
+                await handle_table_number(data["tableNumber"])
                 
             
 
@@ -95,12 +98,23 @@ async def handle_add_card(card):
         return  # Exit the function without adding the card
 
     if game_state["joker"] is None:
-        game_state["joker"] = card  # First card is Joker
+        # First card is Joker
+        game_state["joker"] = card
         update = {"action": "set_joker", "joker": card}
         await broadcast(update)
     else:
+        # Check if card is already present in andar, bahar, or joker
+        if (
+            card == game_state["joker"] or
+            card in game_state["andar"] or
+            card in game_state["bahar"]
+        ):
+            # Broadcast duplicate card action
+            await broadcast({"action": "duplicate_card", "card": card})
+            print(f"Duplicate card detected: {card}")
+            return  # Exit the function without adding the card
+
         # Assign card to the current section
-        
         section = game_state["next_section"]
         game_state[section].append(card)
 
@@ -114,17 +128,16 @@ async def handle_add_card(card):
             "bahar": game_state["bahar"],
         }
         await broadcast(update)
-        winner = check_win_condition()
-        print("winner in check win",winner)
-        if winner is not None:
 
-            
-            update["action"] = "game_won"
+        winner = check_win_condition()
+        print("winner in check win", winner)
+        if winner is not None:
+            # update["action"] = "game_won"
             update["winner"] = winner  # Store section name
 
             # Store win in MongoDB
             await record_win(winner)
-            print("winner in record win",winner)
+            print("winner in record win", winner)
 
             await broadcast(update)
 
@@ -183,6 +196,11 @@ click_count = 0
 async def start_automatic():
     """Automatically plays the game with pauses after Joker and two initial cards."""
     global click_count
+    ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"]
+    suits = ["S", "D", "C", "H"]
+    deck = [rank + suit for rank in ranks for suit in suits]
+    random.shuffle(deck)
+  
 
     # Step 1: Draw the Joker and PAUSE
     if click_count == 0:
@@ -375,3 +393,11 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+# async def main():
+#     """Starts the WebSocket server."""
+#     async with websockets.serve(handle_connection, "localhost", 6789):
+#         print("WebSocket server running on ws://localhost:6789")
+#         await asyncio.Future()
+
+# if __name__ == "__main__":
+#     asyncio.run(main())

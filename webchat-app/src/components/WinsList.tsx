@@ -23,7 +23,7 @@ const WinsList = () => {
   const [winner, setWinner] = useState<number | null>(null);
   // Big Road grouping logic
   useEffect(() => {
-    const maxRows = 6;
+    const maxRows = 4;
     const newGroupedWins: WinRecord[][] = [];
     const orderedWins = [...wins].reverse(); // oldest to newest
 
@@ -80,7 +80,7 @@ const WinsList = () => {
 
   // Bead Plate logic
   useEffect(() => {
-    const maxRows = 6;
+    const maxRows = 4;
     const newBeadPlateGrid: number[][] = [];
     let col = 0;
     let row = 0;
@@ -116,13 +116,14 @@ const WinsList = () => {
 
     ws.onmessage = (event) => {
       const message = JSON.parse(event.data);
+      console.log("WebSocket message received:", message);
       if (message.action === "game_won") {
         const newWin: WinRecord = {
           winner: message.winner,
           timestamp: new Date().toISOString(),
         };
         setWinner(message.winner);
-        console.log("Winner is", message.winner);
+        console.log("message.action === game_won", message.winner);
         setShowWinnerModal(true);
         setTimeout(() => {
           setShowWinnerModal(false);
@@ -176,9 +177,9 @@ const WinsList = () => {
               </div>
 
               {/* Logo in the Center */}
-              {/* <div className="flex justify-center items-center">
+              <div className="flex justify-center items-center">
                 <img src="/assets/logo.png" alt="logo" className="h-20" />
-              </div> */}
+              </div>
 
               {/* Image on the Right */}
               <div>
@@ -189,10 +190,10 @@ const WinsList = () => {
 
           {/* Main Content */}
           <div className="flex-1 flex flex-col relative overflow-hidden">
-            <div className="bg-contain bg-no-repeat bg-center opacity-70 animate-glow w-1/2 h-1/2"
-              style={{ backgroundImage: `url(/assets/ocean7.png)` }}></div>
+            {/* <div className="bg-contain bg-no-repeat bg-center opacity-70 animate-glow w-1/2 h-1/2"
+              style={{ backgroundImage: `url(/assets/ocean7.png)` }}></div> */}
 
-            <div className="flex flex-col gap-1 p-1 border border-yellow-400  h-[600px] bg-white bg-opacity-50 w-full">
+            <div className="flex flex-col gap-1 p-1 border border-yellow-400  h-[800px] bg-white bg-opacity-50 w-full">
 
               {/* Define max columns */}
               {(() => {
@@ -201,10 +202,10 @@ const WinsList = () => {
                 return (
                   <>
                     {/* 🔴 Big Road */}
-                    <div className="flex overflow-hidden h-[200px]">
+                    <div className="flex overflow-hidden h-[250px] ">
                       {Array.from({ length: maxColumns }).map((_, colIndex) => (
                         <div key={colIndex} className="flex flex-col items-center">
-                          {Array.from({ length: 6 }).map((_, rowIndex) => (
+                          {Array.from({ length: 4 }).map((_, rowIndex) => (
                             <div
                               key={rowIndex}
                               className="h-16 w-16 flex items-center justify-center "
@@ -212,8 +213,8 @@ const WinsList = () => {
                               {groupedWins[colIndex]?.[rowIndex] ? (
                                 <div
                                   className={`w-[20px] h-[20px] rounded-full ${groupedWins[colIndex][rowIndex].winner === 0
-                                      ? "bg-red-500"
-                                      : "bg-blue-900"
+                                      ? "bg-blue-500"
+                                      : "bg-red-500"
                                     }`}
                                 ></div>
                               ) : null}
@@ -224,7 +225,7 @@ const WinsList = () => {
                     </div>
 
                     {/* 🔵 Big Eye Boy */}
-                    <div className="flex border-t-6 border-yellow-300  h-[200px] overflow-hidden">
+                    <div className="flex border-t-6 border-yellow-300  h-[250px] overflow-hidden">
                       {Array.from({ length: maxColumns }).map((_, colIndex) => (
                         <div key={colIndex} className="flex flex-col items-center">
                           {Array.from({ length: 4 }).map((_, rowIndex) => (
@@ -235,8 +236,8 @@ const WinsList = () => {
                               {bigEyeBoyGrid[colIndex]?.[rowIndex] !== undefined ? (
                                 <div
                                   className={`w-[20px] h-[20px] rounded-full ${bigEyeBoyGrid[colIndex][rowIndex] === 0
-                                      ? "border-red-500 border-4"
-                                      : "border-blue-900 border-4"
+                                      ? "border-blue-500 border-4"
+                                      : "border-red-500 border-4"
                                     }`}
                                 ></div>
                               ) : (
@@ -249,10 +250,10 @@ const WinsList = () => {
                     </div>
 
                     {/* ⚪ Bead Plate */}
-                    <div className="flex overflow-hidden border-t border-yellow-300 h-[275px]">
+                    <div className="flex overflow-hidden border-t border-yellow-300 h-[250px]">
                       {Array.from({ length: maxColumns }).map((_, colIndex) => (
                         <div key={colIndex} className="flex flex-col items-center">
-                          {Array.from({ length: 6 }).map((_, rowIndex) => (
+                          {Array.from({ length: 4 }).map((_, rowIndex) => (
                             <div
                               key={rowIndex}
                               className="h-16 w-16 flex items-center justify-center border-2 border-gray-400"
@@ -260,8 +261,8 @@ const WinsList = () => {
                               {beadPlateGrid[colIndex]?.[rowIndex] !== undefined ? (
                                 <div
                                   className={`w-[20px] h-[20px] rounded-full flex items-center justify-center text-white font-bold ${beadPlateGrid[colIndex][rowIndex] === 0
-                                      ? "bg-red-500"
-                                      : "bg-blue-900"
+                                      ? "bg-blue-500"
+                                      : "bg-red-500"
                                     }`}
                                 >
                                   {beadPlateGrid[colIndex][rowIndex] === 0 ? "A" : "B"}
@@ -305,37 +306,37 @@ const WinsList = () => {
               <div className="p-4 col-span-2 shadow-lg text-left relative border-2 border-yellow-400">
                 <h2 className="text-yellow-400 text-4xl font-ramaraja font-bold text-center mb-4">STATISTICS</h2>
                 <div className="flex items-center gap-2">
-                  <img src="/assets/blue_a.png" className="w-16 h-16" />
+                  <img src="/assets/blue_a.svg" className="w-20 h-20" />
                   <div className="flex-1 h-8 relative">
                     <div className="absolute inset-0 flex">
                       {/* Andar Bar */}
                       <div
-                        className="h-full bg-red-600 rounded-l-full flex items-center justify-center text-white font-bold"
+                        className="h-full bg-blue-600 rounded-l-full flex items-center justify-center text-white font-bold"
                         style={{ width: `${andarPercentage}%` }}
                       >
                         {andarPercentage > 0 && <span>{andarPercentage}%</span>}
                       </div>
                       {/* Bahar Bar */}
                       <div
-                        className="h-full bg-blue-600 rounded-r-full flex items-center justify-center text-white font-bold"
+                        className="h-full bg-red-600 rounded-r-full flex items-center justify-center text-white font-bold"
                         style={{ width: `${baharPercentage}%` }}
                       >
                         {baharPercentage > 0 && <span>{baharPercentage}%</span>}
                       </div>
                     </div>
                   </div>
-                  <img src="/assets/red_b.png" className="w-16 h-16" />
+                  <img src="/assets/red_b.svg" className="w-20 h-20" />
                 </div>
               </div>
 
               <div className="p-4 shadow-lg text-left relative border-2 border-yellow-400">
                 <div className="flex justify-around">
                   <div className="flex flex-col items-center">
-                    <img src="/assets/a.png" className="w-20 h-20" />
+                    <img src="/assets/blue_a.svg" className="w-20 h-20" />
                     <span className="text-2xl text-yellow-400 font-bold font-ramaraja">Andar</span>
                   </div>
                   <div className="flex flex-col items-center">
-                    <img src="/assets/b.png" className="w-20 h-20" />
+                    <img src="/assets/red_b.svg" className="w-20 h-20" />
                     <span className="text-2xl text-yellow-400 font-bold font-ramaraja">Bahar</span>
                   </div>
                 </div>
