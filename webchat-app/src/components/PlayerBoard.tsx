@@ -303,7 +303,7 @@ return (
         <div className="flex items-center justify-between gap-1">
           {/* Andar Circle */}
           <div className="w-8 h-8">
-            <img src="/assets/blue_a.png" alt="Andar Wins" className="w-full h-full" />
+            <img src="/assets/blue_a.svg" alt="Andar Wins" className="w-full h-full" />
           </div>
 
           {/* Progress Bar */}
@@ -332,7 +332,7 @@ return (
 
           {/* Bahar Circle */}
           <div className="w-8 h-8">
-            <img src="/assets/red_b.png" alt="Bahar" className="w-full h-full" />
+            <img src="/assets/red_b.svg" alt="Bahar" className="w-full h-full" />
           </div>
         </div>
 
@@ -344,12 +344,12 @@ return (
         <img src="/assets/screw.png" alt="screw" className="absolute top-2 right-2 w-6 h-6" />
         <div className="flex justify-around items-center">
           <div className="flex flex-col items-center">
-            <img src="/assets/blue_a.png" alt="Andar Wins" className="w-10 h-10" />
+            <img src="/assets/blue_a.svg" alt="Andar Wins" className="w-10 h-10" />
             <span className="text-xl text-yellow-400 font-bold font-ramaraja ">Andar</span>
           </div>
 
           <div className="flex flex-col items-center">
-            <img src="/assets/red_b.png" alt="Bahar Wins" className="w-10 h-10" />
+            <img src="/assets/red_b.svg" alt="Bahar Wins" className="w-10 h-10" />
             <span className="text-xl text-yellow-400 font-bold font-ramaraja">Bahar</span>
           </div>
 

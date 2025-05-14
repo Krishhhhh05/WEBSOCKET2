@@ -190,7 +190,7 @@ const WinsBoards = ({ socket, joker }: { socket: WebSocket | null, joker: string
               >
                 <div className="flex items-center space-x-2">
                   <div className="w-12 h-12">
-                    <img src="/assets/blue_a.png" alt="a" className="w-16" />
+                    <img src="/assets/blue_a.svg" alt="a" className="w-16" />
                   </div>
                   <span className="text-black text-5xl">{andar.length}</span>
                 </div>
@@ -203,7 +203,7 @@ const WinsBoards = ({ socket, joker }: { socket: WebSocket | null, joker: string
               >
                 <div className="flex items-center space-x-2">
                   <div className="w-12 h-16 pt-1">
-                    <img src="/assets/red_b.png" alt="b" className="w-16" />
+                    <img src="/assets/red_b.svg" alt="b" className="w-16" />
                   </div>
                   <span className="text-black text-5xl">{bahar.length}</span>
                 </div>

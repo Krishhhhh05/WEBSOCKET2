@@ -187,6 +187,11 @@ click_count = 0
 async def start_automatic():
     """Automatically plays the game with pauses after Joker and two initial cards."""
     global click_count
+    
+    ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"]
+    suits = ["S", "D", "C", "H"]
+    deck = [rank + suit for rank in ranks for suit in suits]
+    random.shuffle(deck )
 
     # Step 1: Draw the Joker and PAUSE
     if click_count == 0:

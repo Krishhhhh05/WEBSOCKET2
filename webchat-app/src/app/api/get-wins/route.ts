@@ -12,7 +12,7 @@ export async function GET() {
     const winsCollection = db.collection(COLLECTION_NAME);
 
     // Fetch the last 10 wins, sorted by latest
-    const wins = await winsCollection.find().sort({ timestamp: -1 }).limit(30).toArray();
+    const wins = await winsCollection.find().sort({ timestamp: -1 }).limit(100).toArray();
     client.close();
 
     return NextResponse.json(wins);

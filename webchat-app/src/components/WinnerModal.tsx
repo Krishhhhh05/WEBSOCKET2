@@ -54,7 +54,7 @@ const WinnerModal = ({ show, onClose, winner }: { show: boolean; onClose: () => 
             <div className="flex items-center justify-center">
               {winner === 0 && (
                 <>
-                <img src="/assets/blue_a.png" alt="Andar Wins" className="w-24 h-24 mr-4" />
+                <img src="/assets/blue_a.svg" alt="Andar Wins" className="w-24 h-24 mr-4" />
                 <div className="text-4xl font-bold text-gray-800 text-center mb-4 w-full">
               ANDAR WINS!!
               </div>
@@ -62,7 +62,7 @@ const WinnerModal = ({ show, onClose, winner }: { show: boolean; onClose: () => 
               )}
               {winner === 1 && (
                 <>
-                <img src="/assets/red_b.png" alt="Bahar Wins" className="w-24 h-24 mr-4" />
+                <img src="/assets/red_b.svg" alt="Bahar Wins" className="w-24 h-24 mr-4" />
                 <div className="text-4xl font-bold text-gray-800 text-center mb-4 w-full">
               BAHAR WINS!!
               </div>
